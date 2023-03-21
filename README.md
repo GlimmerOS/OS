@@ -4,18 +4,26 @@
 
 ```
 .
-├── build 		// compile or build files
+├── build			// compile or build files
 ├── include		// global include files
 │   └── example.h
-├── kernel		// kernel codes files
+├── kernel		// kernel code files
 │   ├── boot.S
+│   ├── cpu
+│   │   └── example.c
 │   ├── device
 │   │   └── example.c
-│   └── memory
-│       └── example.c
+│   ├── fs
+│   │   └── example.c
+│   ├── memory
+│   │   └── example.c
+│   ├── process
+│   │   └── example.c
+│   └── sbi
+│       └── rustsbi-qemu.bin
 ├── Makefile		// project script
 ├── README.md
-└── user 		//user codes files
+└── user				// user code files
     └── userinit.S
 ```
 
