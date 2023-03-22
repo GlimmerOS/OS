@@ -1,8 +1,5 @@
 # Workspace
 WORKDIR = $(abspath .)
-BUILDDIR = $(WORKDIR)/build
-
-$(shell mkdir -p $(BUILDDIR))
 
 # Try to infer the correct TOOLPREFIX if not set
 ifndef TOOLPREFIX
@@ -40,18 +37,38 @@ QEMUFLAGS = -machine $(MACHINE) \
 						-m $(MEMORYSIZE) \
 						-nographic
 
+CFLAGS = -Wall -Werror -ggdb \
+				 -MD
+
+KERNELENTRY = entry
+
+KERNELSRC = $(shell find $(WORKDIR)/kernel -name "*.c")
+KERNELOBJ = $(KERNELSRC:%.c=%.o)
+KERNELOBJ += $(K)/$(KERNELENTRY).o
+-include $(KERNELSRC:%.c:%.d)
+KERNELBIN = $(K)/kernel
+KERNELLD = $(K)/kernel.ld
+
+USERSRC = $(shell find $(WORKDIR)/user -name "*.c")
+USEROBJ = $(USERSRC:%.c=%.o)
+-include $(USERSRC:%.c:%.d)
+
+$(KERNELBIN): $(KERNELOBJ) $(KERNELLD)
+	$(LD) $(LDFLAGS) -T $(KERNELLD) -o $@ $(KERNELOBJ)
+
+run: $(KERNELBIN)
+	$(QEMU) $(QEMUFLAGS) -kernel $^
+
 QEMUGDBFLAGS = -S -gdb \
 							 tcp::26000
 
-run:
-	$(QEMU) $(QEMUFLAGS)
-
-gdb:
+gdb: $(KERNELBIN)
+	@grep -E "set auto-load safe-path /" ~/.gdbinit || echo "set auto-load safe-path /" >> ~/.gdbinit
 	@echo "**********Start riscv64-unknown-linux-gnu-gdb on another window"
 	@echo "**********Target remote localhost:26000"
-	$(QEMU) $(QEMUFLAGS) $(QEMUGDBFLAGS) 
+	$(QEMU) $(QEMUFLAGS) -kernel $(KERNELBIN) $(QEMUGDBFLAGS) 
 
 clean:
-	rm -rf $(BUILDDIR);
+	rm -f $(KERNELOBJ) $(USEROBJ) $(KERNELOBJ:%.o=%.d) $(USEROBJ:%.o:%.d)
 
-.PHONY: clean run
+.PHONY: clean run gdb

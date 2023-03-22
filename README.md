@@ -4,26 +4,25 @@
 
 ```
 .
-├── build			// compile or build files
 ├── include		// global include files
 │   └── example.h
 ├── kernel		// kernel code files
-│   ├── boot.S
-│   ├── cpu
-│   │   └── example.c
 │   ├── device
-│   │   └── example.c
+│   ├── entry.o
+│   ├── entry.S
 │   ├── fs
-│   │   └── example.c
+│   ├── kernel
+│   ├── kernel.ld
 │   ├── memory
-│   │   └── example.c
 │   ├── process
-│   │   └── example.c
+│   ├── riscv
 │   └── sbi
 │       └── rustsbi-qemu.bin
-├── Makefile		// project script
+├── Makefile	// project script
+|-- .gitignore
+|-- .gdbinit
 ├── README.md
-└── user				// user code files
+└── user			// user code files
     └── userinit.S
 ```
 
