@@ -1,8 +1,5 @@
 # Workspace
 WORKDIR = $(abspath .)
-BUILDDIR = $(WORKDIR)/build
-
-$(shell mkdir -p $(BUILDDIR))
 
 # Try to infer the correct TOOLPREFIX if not set
 ifndef TOOLPREFIX
@@ -43,15 +40,32 @@ QEMUFLAGS = -machine $(MACHINE) \
 QEMUGDBFLAGS = -S -gdb \
 							 tcp::26000
 
-run:
-	$(QEMU) $(QEMUFLAGS)
+CFLAGS = -Wall -Werror -ggdb \
+				 -MD
 
-gdb:
+KERNELENTRY = entry
+
+KERNELSRC = $(shell find $(WORKDIR)/kernel -name "*.c")
+KERNELOBJ = $(KERNELSRC:%.c=%.o)
+KERNELOBJ += $(K)/$(KERNELENTRY).o
+-include $(KERNELSRC:%.c:%.d)
+KERNELBIN = $(K)/kernel
+KERNELLD = $(K)/kernel.ld
+
+USERSRC = $(shell find $(WORKDIR)/user -name "*.c")
+USEROBJ = $(USERSRC:%.c=%.o)
+-include $(USERSRC:%.c:%.d)
+
+$(KERNELBIN): $(KERNELOBJ) $(KERNELLD)
+	$(LD) $(LDFLAGS) -T $(KERNELLD) -o $@ $(KERNELOBJ)
+
+run: $(KERNELBIN)
+	$(QEMU) $(QEMUFLAGS) -kernel $^
+
+gdb: $(KERNELBIN)
 	@echo "**********Start riscv64-unknown-linux-gnu-gdb on another window"
 	@echo "**********Target remote localhost:26000"
-	$(QEMU) $(QEMUFLAGS) $(QEMUGDBFLAGS) 
-
+	$(QEMU) $(QEMUFLAGS) -kernel $(KERNELBIN) $(QEMUGDBFLAGS) 
 clean:
-	rm -rf $(BUILDDIR);
-
-.PHONY: clean run
+	rm -f $(KERNELOBJ) $(USEROBJ) $(KERNELOBJ:%.o=%.d) $(USEROBJ:%.o:%.d)
+.PHONY: clean run gdb

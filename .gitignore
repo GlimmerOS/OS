@@ -8,4 +8,4 @@
 !*.[chS]
 !*.cpp
 !*.cc
-build
+!.gdbinit
