@@ -1,2 +1,11 @@
 CompileFlags:
-  Add: [-I./include]
+  Add: [
+  -Wall,
+  -Werror,
+  -I./include
+  -MD
+  -ffreestanding
+  -fno-common
+  -nostdlib
+  ]
+  Compiler: riscv-unknown-linux-gcc

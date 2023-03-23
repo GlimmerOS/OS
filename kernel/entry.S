@@ -1,6 +1,9 @@
 .section .text
 .global _entry
 _entry:
-        li a0, 48
-        li a7, 1
-        ecall
+  la sp, boot_stack
+  lui t0, 0x1
+  add sp, sp, t0
+  call main
+spin:
+  j spin

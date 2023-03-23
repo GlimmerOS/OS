@@ -37,38 +37,48 @@ QEMUFLAGS = -machine $(MACHINE) \
 						-m $(MEMORYSIZE) \
 						-nographic
 
+# C compile options
 CFLAGS = -Wall -Werror -ggdb \
-				 -MD
+				 -MD \
+				 -ffreestanding -fno-common -nostdlib -mno-relax
+INCLUDEPATH = $(WORKDIR)/include
+CFLAGS += $(addprefix -I, $(INCLUDEPATH))
 
+# kernel info
 KERNELENTRY = entry
 
 KERNELSRC = $(shell find $(WORKDIR)/kernel -name "*.c")
-KERNELOBJ = $(KERNELSRC:%.c=%.o)
-KERNELOBJ += $(K)/$(KERNELENTRY).o
+KERNELOBJ = $(K)/$(KERNELENTRY).o
+KERNELOBJ += $(KERNELSRC:%.c=%.o)
 -include $(KERNELSRC:%.c:%.d)
 KERNELBIN = $(K)/kernel
 KERNELLD = $(K)/kernel.ld
 
+# user info
 USERSRC = $(shell find $(WORKDIR)/user -name "*.c")
 USEROBJ = $(USERSRC:%.c=%.o)
 -include $(USERSRC:%.c:%.d)
 
+# build kernel
 $(KERNELBIN): $(KERNELOBJ) $(KERNELLD)
 	$(LD) $(LDFLAGS) -T $(KERNELLD) -o $@ $(KERNELOBJ)
 
+# run qemu
 run: $(KERNELBIN)
 	$(QEMU) $(QEMUFLAGS) -kernel $^
 
+# debug options
 QEMUGDBFLAGS = -S -gdb \
 							 tcp::26000
 
+# run debug
 gdb: $(KERNELBIN)
 	@grep -E "set auto-load safe-path /" ~/.gdbinit || echo "set auto-load safe-path /" >> ~/.gdbinit
 	@echo "**********Start riscv64-unknown-linux-gnu-gdb on another window"
-	@echo "**********Target remote localhost:26000"
 	$(QEMU) $(QEMUFLAGS) -kernel $(KERNELBIN) $(QEMUGDBFLAGS) 
 
+# clean project not needed files
 clean:
-	rm -f $(KERNELOBJ) $(USEROBJ) $(KERNELOBJ:%.o=%.d) $(USEROBJ:%.o:%.d)
+	rm -f $(KERNELOBJ) $(USEROBJ) $(KERNELOBJ:%.o=%.d) $(USEROBJ:%.o:%.d) $(KERNELBIN)
 
 .PHONY: clean run gdb
