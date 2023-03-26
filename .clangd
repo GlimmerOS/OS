@@ -1,0 +1,10 @@
+CompileFlags:
+  Add: [-Wall,
+        -Werror,
+        -I/home/yewpo/Desktop/test/GlimmerOS/include,
+        -MD,
+        -ffreestanding,
+        -fno-common,
+        -nostdlib,
+        -mno-relax]
+  Compiler: riscv-unknown-linux-gcc

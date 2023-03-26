@@ -1,0 +1,11 @@
+*.*
+*
+!*/
+!Makefile
+!.clangd
+!.gitignore
+!README.md
+!*.[chS]
+!*.cpp
+!*.cc
+!.gdbinit
