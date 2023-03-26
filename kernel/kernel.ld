@@ -1,5 +1,5 @@
-OUTPUT_ARCH( riscv )
-ENTRY( _entry )
+OUTPUT_ARCH(riscv)
+ENTRY(_entry )
 BASE_ADDRESS = 0x80200000;
 
 SECTIONS
@@ -11,24 +11,24 @@ SECTIONS
   }
 
   .rodata : {
-    . = ALIGN(16);
     *(.srodata .srodata.*)
-    . = ALIGN(16);
     *(.rodata .rodata.*)
   }
 
+  . = ALIGN(4K);
   .data : {
-    . = ALIGN(16);
-    *(.sdata .sdata.*)
-    . = ALIGN(16);
     *(.data .data.*)
+    *(.sdata .sdata.*)
   }
 
+  . = ALIGN(4K);
   .bss : {
-    . = ALIGN(16);
-    *(.sbss .sbss.*)
-    . = ALIGN(16);
+    *(.bss.stack)
     *(.bss .bss.*)
+    *(.sbss .sbss.*)
   }
 
+  /DISCARD/ : {
+        *(.eh_frame)
+  }
 }
