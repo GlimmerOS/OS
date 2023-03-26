@@ -12,4 +12,6 @@ void main() {
   putchar('r');
   putchar('O');
   putchar('S');
+  putchar('\n');
+  shutdown();
 }
