@@ -2,7 +2,6 @@
 *
 !*/
 !Makefile
-!.clangd
 !.gitignore
 !README.md
 !*.[chS]
