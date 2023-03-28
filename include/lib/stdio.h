@@ -3,9 +3,9 @@
 
 #include "lib/legacysbi.h"
 
-static char digits[] = "0123456789abcdef";
-
 int putchar(int ch);
 int getchar(void);
+
+void printf(char *fmt, ...);
 
 #endif

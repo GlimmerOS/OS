@@ -1,6 +1,10 @@
-#include "stdc.h"
+#include "lib/stdio.h"
+#include "stdint.h"
+#include "string.h"
 #include "common.h"
 #include <stdarg.h>
+
+static char digits[] = "0123456789abcdef";
 
 int putchar(int ch) {
   return sbi_console_putchar(ch);
@@ -35,7 +39,7 @@ static struct rule {
 
 static void print_int32(int32_t num, int base) {
   char buf[32];
-  size_t i = 0;
+  int i = 0;
 
   if (num < 0) {
     putchar('-');
@@ -47,14 +51,14 @@ static void print_int32(int32_t num, int base) {
     num /= base;
   }
 
-  while (--i > 0) {
+  while (--i >= 0) {
     putchar(buf[i]);
   }
 }
 
 static void print_int64(int64_t num, int base) {
   char buf[64];
-  size_t i = 0;
+  int i = 0;
 
   if (num < 0l) {
     putchar('-');
@@ -66,35 +70,35 @@ static void print_int64(int64_t num, int base) {
     num /= base;
   }
 
-  while (--i > 0) {
+  while (--i >= 0) {
     putchar(buf[i]);
   }
 }
 
 static void print_uint32(uint32_t num, int base) {
   char buf[32];
-  size_t i = 0;
+  int i = 0;
 
   while (num > 0u) {
     buf[i++]  = digits[num % base];
     num /= base;
   }
 
-  while (--i > 0) {
+  while (--i >= 0) {
     putchar(buf[i]);
   }
 }
 
 static void print_uint64(uint64_t num, int base) {
   char buf[64];
-  size_t i = 0;
+  int i = 0;
 
   while (num > 0lu) {
     buf[i++]  = digits[num % base];
     num /= base;
   }
 
-  while (--i > 0) {
+  while (--i >= 0) {
     putchar(buf[i]);
   }
 }
@@ -155,7 +159,12 @@ void printf(char *fmt, ...) {
           default:
             break;
         }
+
+        pos += strlen(rules[i].target);
+        continue;
       }
+    } else {
+      putchar(fmt[pos]);
     }
     pos++;
   }

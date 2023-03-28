@@ -2,6 +2,31 @@
 #include "lib/legacysbi.h"
 
 /*
+ * @eid: extension ID
+ * @arg0: first argument
+ * @arg1: second argument
+ * @arg2: thrid argument
+ * @arg3: fourth argument
+ * call the function mapped by eid
+ */
+static uint64_t legacy_sbi_call(uint64_t eid, uint64_t arg0, uint64_t arg1, uint64_t arg2, uint64_t arg3) {
+    uint64_t ret;
+    asm volatile(
+        "mv a7, %[eid]\n"
+        "mv a0, %[arg0]\n"
+        "mv a1, %[arg1]\n"
+        "mv a2, %[arg2]\n"
+        "mv a3, %[arg3]\n"
+        "ecall\n"
+        "mv %[ret], a0"
+        : [ret] "=r" (ret)
+        : [eid] "r" (eid), [arg0] "r" (arg0), [arg1] "r" (arg1), [arg2] "r" (arg2), [arg3] "r" (arg3)
+        : "memory"
+    );
+    return ret;
+}
+
+/*
  * @stime_value: set time value
  * Programs the clock for next event after stime_value time. This function also clears the pending timer
  * interrupt bit.
