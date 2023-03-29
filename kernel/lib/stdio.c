@@ -16,6 +16,7 @@ enum {
   TY_UINT32_10,
   TY_UINT64_10,
   TY_STRING,
+  TY_PERCENT,
 };
 
 static void print_int32(int32_t num, int base);
@@ -33,6 +34,8 @@ static struct rule {
   {"%u", TY_UINT32_10},
   {"%lu", TY_UINT64_10},
   {"%s", TY_STRING},
+
+  {"%%", TY_PERCENT},
 };
 
 #define NR_RULES ARRLEN(rules)
@@ -162,6 +165,9 @@ void printf(char *fmt, ...) {
       case TY_STRING:
         s = va_arg(ap, char *);
         print_string(s);
+        break;
+      case TY_PERCENT:
+        sbi_console_putchar('%');
         break;
       default:
         break;
