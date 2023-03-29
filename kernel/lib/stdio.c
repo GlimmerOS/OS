@@ -28,11 +28,11 @@ static struct rule {
   char *target;
   int type;
 } rules[] = {
-  {"d", TY_INT32_10},
-  {"ld", TY_INT64_10},
-  {"u", TY_UINT32_10},
-  {"lu", TY_UINT64_10},
-  {"s", TY_STRING},
+  {"%d", TY_INT32_10},
+  {"%ld", TY_INT64_10},
+  {"%u", TY_UINT32_10},
+  {"%lu", TY_UINT64_10},
+  {"%s", TY_STRING},
 };
 
 #define NR_RULES ARRLEN(rules)
@@ -119,54 +119,55 @@ void printf(char *fmt, ...) {
   
   va_start(ap, fmt);
   while (fmt[pos] != '\0') {
-    if (fmt[pos] == '%') {
+    if (fmt[pos] != '%') {
+      // not a formot
+      sbi_console_putchar(fmt[pos]);
       pos++;
-
-      int i;
-      for (i = 0; i < NR_RULES; ++i) {
-        if (strncmp(fmt+pos, rules[i].target, strlen(rules[i].target)) == 0) {
-          break;
-        }
-      }
-
-      if (i == NR_RULES) {
-        // unknown format
-        putchar('%');
-        putchar(fmt[pos]);
-      } else {
-        // valid format
-        switch (rules[i].type) {
-          case TY_INT32_10:
-            num = va_arg(ap, int32_t);
-            print_int32(num, 10);
-            break;
-          case TY_INT64_10:
-            num = va_arg(ap, int64_t);
-            print_int64(num, 10);
-            break;
-          case TY_UINT32_10:
-            num = va_arg(ap, uint32_t);
-            print_uint32(num, 10);
-            break;
-          case TY_UINT64_10:
-            num = va_arg(ap, uint64_t);
-            print_uint64(num, 10);
-            break;
-          case TY_STRING:
-            s = va_arg(ap, char *);
-            print_string(s);
-            break;
-          default:
-            break;
-        }
-
-        pos += strlen(rules[i].target);
-        continue;
-      }
-    } else {
-      putchar(fmt[pos]);
+      continue;
     }
-    pos++;
+
+    // a format
+    int i;
+    for (i = 0; i < NR_RULES; ++i) {
+      if (strncmp(fmt+pos, rules[i].target, strlen(rules[i].target)) == 0) {
+        break;
+      }
+    }
+
+    if (i == NR_RULES) {
+      // invalid format
+      sbi_console_putchar('%');
+      pos++;
+      continue;
+    }
+
+    // valid format
+    switch (rules[i].type) {
+      case TY_INT32_10:
+        num = va_arg(ap, int32_t);
+        print_int32(num, 10);
+        break;
+      case TY_INT64_10:
+        num = va_arg(ap, int64_t);
+        print_int64(num, 10);
+        break;
+      case TY_UINT32_10:
+        num = va_arg(ap, uint32_t);
+        print_uint32(num, 10);
+        break;
+      case TY_UINT64_10:
+        num = va_arg(ap, uint64_t);
+        print_uint64(num, 10);
+        break;
+      case TY_STRING:
+        s = va_arg(ap, char *);
+        print_string(s);
+        break;
+      default:
+        break;
+    }
+
+    pos += strlen(rules[i].target);
   }
   va_end(ap);
 }
