@@ -9,7 +9,7 @@
  * @arg3: fourth argument
  * call the function mapped by eid
  */
-uint64_t legacy_sbi_call(uint64_t eid, uint64_t arg0, uint64_t arg1, uint64_t arg2, uint64_t arg3) {
+static uint64_t legacy_sbi_call(uint64_t eid, uint64_t arg0, uint64_t arg1, uint64_t arg2, uint64_t arg3) {
     uint64_t ret;
     asm volatile(
         "mv a7, %[eid]\n"
@@ -52,12 +52,11 @@ int64_t sbi_console_putchar(int32_t ch) {
 int64_t sbi_console_getchar(void) {
     return legacy_sbi_call(SBI_CONSOLE_GETCHAR, 0, 0, 0, 0);
 }
-//
-//
-// int64_t sbi_clear_ipi(void) {
-//     return legacy_sbi_call(SBI_CLEAR_IPI, 0, 0, 0, 0);
-// }
-//
-// void sbi_shutdown(void) {
-//     legacy_sbi_call(SBI_SHUTDOWN, 0, 0, 0, 0);
-// }
+
+/* int64_t sbi_clear_ipi(void) {
+    return legacy_sbi_call(SBI_CLEAR_IPI, 0, 0, 0, 0);
+}
+
+void sbi_shutdown(void) {
+    legacy_sbi_call(SBI_SHUTDOWN, 0, 0, 0, 0);
+} */
