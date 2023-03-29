@@ -16,14 +16,10 @@ enum {
   TY_UINT32_10,
   TY_UINT64_10,
   TY_STRING,
+  TY_POINTER,
+
   TY_PERCENT,
 };
-
-static void print_int32(int32_t num, int base);
-static void print_int64(int64_t num, int base);
-static void print_uint32(uint32_t num, int base);
-static void print_uint64(uint64_t num, int base);
-static void print_string(char *s);
 
 static struct rule {
   char *target;
@@ -34,6 +30,7 @@ static struct rule {
   {"%u", TY_UINT32_10},
   {"%lu", TY_UINT64_10},
   {"%s", TY_STRING},
+  {"%p", TY_POINTER},
 
   {"%%", TY_PERCENT},
 };
@@ -45,7 +42,7 @@ static void print_int32(int32_t num, int base) {
   int i = 0;
 
   if (num < 0) {
-    putchar('-');
+    sbi_console_putchar('-');
     num = -num;
   }
 
@@ -55,7 +52,7 @@ static void print_int32(int32_t num, int base) {
   }
 
   while (--i >= 0) {
-    putchar(buf[i]);
+    sbi_console_putchar(buf[i]);
   }
 }
 
@@ -64,7 +61,7 @@ static void print_int64(int64_t num, int base) {
   int i = 0;
 
   if (num < 0l) {
-    putchar('-');
+    sbi_console_putchar('-');
     num = -num;
   }
 
@@ -74,7 +71,7 @@ static void print_int64(int64_t num, int base) {
   }
 
   while (--i >= 0) {
-    putchar(buf[i]);
+    sbi_console_putchar(buf[i]);
   }
 }
 
@@ -88,7 +85,7 @@ static void print_uint32(uint32_t num, int base) {
   }
 
   while (--i >= 0) {
-    putchar(buf[i]);
+    sbi_console_putchar(buf[i]);
   }
 }
 
@@ -102,14 +99,21 @@ static void print_uint64(uint64_t num, int base) {
   }
 
   while (--i >= 0) {
-    putchar(buf[i]);
+    sbi_console_putchar(buf[i]);
   }
+}
+
+static void print_pointer(void *ptr) {
+  uint64_t address = (uint64_t)ptr;
+  sbi_console_putchar('0');
+  sbi_console_putchar('x');
+  print_uint64(address, 16);
 }
 
 static void print_string(char *s) {
   size_t i = 0;
   while (s[i] != '\0') {
-    putchar(s[i]);
+    sbi_console_putchar(s[i]);
     i++;
   }
 }
@@ -118,7 +122,7 @@ void printf(char *fmt, ...) {
   va_list ap;
   size_t pos = 0;
   size_t num;
-  char *s;
+  void *ptr;
   
   va_start(ap, fmt);
   while (fmt[pos] != '\0') {
@@ -162,9 +166,13 @@ void printf(char *fmt, ...) {
         num = va_arg(ap, uint64_t);
         print_uint64(num, 10);
         break;
+      case TY_POINTER:
+        ptr = va_arg(ap, void *);
+        print_pointer(ptr);
+        break;
       case TY_STRING:
-        s = va_arg(ap, char *);
-        print_string(s);
+        ptr = va_arg(ap, char *);
+        print_string(ptr);
         break;
       case TY_PERCENT:
         sbi_console_putchar('%');
