@@ -1,6 +1,6 @@
 #include "lock/spinlock.h"
 
-
+//生成一个自旋锁
 void init_lock(struct spinlock *lock, char *name)
 {
     lock->cpu = 0;
@@ -8,6 +8,7 @@ void init_lock(struct spinlock *lock, char *name)
     lock->name = name;
 };
 
+//获取锁
 void acquire(struct spinlock *lock) {
     push_off();
     if (holding(lock));
@@ -27,7 +28,7 @@ void acquire(struct spinlock *lock) {
     lock->cpu = mycpu();
 }
 
-
+//释放锁
 void release(struct spinlock *lock) {
     if (!holding(lock))
     {
@@ -50,6 +51,7 @@ int holding(struct spinlock *lock) {
     return result;
 }
 
+//关闭中断并且标记初次操作前的开关中断情况，便于恢复；允许多次调用来嵌套
 void push_off(void) {
     int old = intr_get(); //获取当前S-mode中断禁止位
     intr_off(); //关中断
@@ -60,6 +62,7 @@ void push_off(void) {
     mycpu()->noff += 1;
 }
 
+//push_off的对称函数，将push_off的嵌套层数减一，到无嵌套时则恢复原状态
 void pop_off(void) {
     struct cpu *cpu_ptr = mycpu();
     if (intr_get())
