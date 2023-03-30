@@ -40,7 +40,7 @@ QEMUFLAGS = -machine $(MACHINE) \
 # C compile options
 CFLAGS = -Wall -Werror -ggdb \
 				 -MD \
-				 -ffreestanding -fno-common -nostdlib -mno-relax
+				 -ffreestanding -fno-common -nostdlib -mno-relax -mcmodel=medany
 INCLUDEPATH = $(WORKDIR)/include
 CFLAGS += $(addprefix -I, $(INCLUDEPATH))
 

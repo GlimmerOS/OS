@@ -1,6 +1,6 @@
 #ifndef _SBI_H
 #define _SBI_H
-#include "lib/stdint.h"
+#include <stdint.h>
 
 
 #define DEBUG_CONSOLE_EXTENSION_ID 0x4442434E
