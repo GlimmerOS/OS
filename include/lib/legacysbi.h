@@ -10,8 +10,6 @@
 #define SBI_REMOTE_SFENCE_VMA_ASID 0x07
 #define SBI_SHUTDOWN 0x08
 
-uint64_t legacy_sbi_call(uint64_t eid, uint64_t arg0, uint64_t arg1, uint64_t arg2, uint64_t arg3);
-
 int64_t sbi_set_timer(uint64_t stime_value);
 int64_t sbi_console_putchar(int32_t ch);
 int64_t sbi_console_getchar(void);
