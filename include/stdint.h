@@ -12,5 +12,9 @@ typedef unsigned int uint32_t;
 typedef unsigned long uint64_t;
 
 typedef unsigned long size_t;
+typedef long ssize_t;
+typedef unsigned long addr_t;
+
+#define NULL 0
 
 #endif
