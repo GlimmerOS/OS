@@ -30,6 +30,7 @@ SECTIONS
     . = ALIGN(16);
     *(.sbss .sbss.*)
   }
-  . = ALIGN(0x1000);
+
+  . = ALIGN(0X1000);
   PROVIDE(end = .);
 }

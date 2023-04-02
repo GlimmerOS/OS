@@ -1,4 +1,5 @@
 #include "lock/spinlock.h"
+#include "debug.h"
 
 //生成一个自旋锁
 void init_lock(struct spinlock *lock, char *name)
@@ -11,8 +12,8 @@ void init_lock(struct spinlock *lock, char *name)
 //获取锁
 void acquire(struct spinlock *lock) {
     push_off();
-    if (holding(lock));
-        //panic()       如果已经持有锁再获取则报错
+
+    Assert(!holding(lock), "The lock is hold!");
     
     /*
     * 这个__syn_lock_test_and_set 函数实际上是RISC-V 中的一次原子操作
@@ -30,10 +31,8 @@ void acquire(struct spinlock *lock) {
 
 //释放锁
 void release(struct spinlock *lock) {
-    if (!holding(lock))
-    {
-        //panic("release");
-    }
+    Assert(holding(lock), "The lock isn't hold");
+
     lock->cpu = 0;
 
     //fence 一次
@@ -65,16 +64,10 @@ void push_off(void) {
 //push_off的对称函数，将push_off的嵌套层数减一，到无嵌套时则恢复原状态
 void pop_off(void) {
     struct cpu *cpu_ptr = mycpu();
-    if (intr_get())
-    {
-        // panic()
-        /* 若此时开中断,打印错误 */
-    }
-    if (cpu_ptr->noff < 1)
-    {
-        // panic()
-        /* 没有pop_off嵌套过，也是异常操作，打印错误 */
-    }
+
+    Assert(!intr_get(), "Cannot open the interupt");
+    Assert(cpu_ptr->noff >= 1, "cpu_ptr->noff < 1");
+
     cpu_ptr->noff -= 1;
     if (cpu_ptr == 0 && cpu_ptr->intena)
     {
