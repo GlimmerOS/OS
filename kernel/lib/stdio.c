@@ -132,9 +132,22 @@ static void print_uint64(uint64_t num, int base) {
 
 static void print_pointer(void *ptr) {
   uint64_t address = (uint64_t)ptr;
+  char buf[20];
+  int i = 0;
+
+  while (address > 0lu) {
+    buf[i++]  = digits[address % 16];
+    address /= 16;
+  }
+  while (i != 16) {
+    buf[i++] = digits[0];
+  }
+
   sbi_console_putchar('0');
   sbi_console_putchar('x');
-  print_uint64(address, 16);
+  while (--i >= 0) {
+    sbi_console_putchar(buf[i]);
+  }
 }
 
 static void print_string(char *s) {

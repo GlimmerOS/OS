@@ -27,8 +27,10 @@ static void init_free_list() {
 /*
  * 物理内存初始化
  */
-void init_physic_memory() {
+void init_physic_memory(){
+  Log("end address: %p", end);
   init_free_list();
+  Log("Initialized physical memory");
 }
 
 /*
@@ -49,6 +51,9 @@ void* alloc_physic_page() {
     memset(page, 0, PAGE_SIZE);
   }
 
+  if (page) {
+    Log("alloc page: %p", page);
+  }
   return page;
 }
 
@@ -60,6 +65,8 @@ void free_physic_page(void* addr) {
   Assert(addr != NULL, "The page to be freed is null!");
   Assert(addr >= end && (uint64_t)addr < PHYSIC_MEM_TOP, "Invalid page address to be freed!");
   Assert((uint64_t)addr == PAGE_START((uint64_t)addr), "The page to be freed is not aligned!");
+
+  Log("free page: %p", addr);
 
   memset(addr, 0xff, PAGE_SIZE);
   struct Page *page = addr;
