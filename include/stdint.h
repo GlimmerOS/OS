@@ -13,6 +13,8 @@ typedef unsigned long uint64_t;
 
 typedef unsigned long size_t;
 typedef long ssize_t;
+typedef unsigned long word_t;
+typedef long sword_t;
 typedef unsigned long addr_t;
 
 #define NULL 0

@@ -2,6 +2,7 @@
 #define _VM_H
 
 #include "common.h"
+#include "stdint.h"
 
 // virtual address
 /// 获取虚拟地址对应级别的虚拟页面号
@@ -10,30 +11,33 @@
 #define VA_PO(x) BITS(x, 11, 0)
 
 // physical address
-/// 获取物理地址的物理页面号
-#define PA_PPN(x) BITS(x, 55, 12)
+/// 获取物理地址的物理页面的起始地址
+#define PA_PPN(x) (BITS(x, 55, 12) << 12)
 /// 获取物理地址的偏移量
 #define PA_PO(x) BITS(x, 11, 0)
 
 // PTE
-/// 获取PTE中的物理页面号
-#define PTE_PPN(x) BITS(x, 53, 10)
-/// 获取PTE的D位
-#define PTE_D(x) BIT(x, 7)
-/// 获取PTE的A位
-#define PTE_A(x) BIT(x, 6)
-/// 获取PTE的G位
-#define PTE_G(x) BIT(x, 5)
-/// 获取PTE的U位
-#define PTE_U(x) BIT(x, 4)
-/// 获取PTE的X位
-#define PTE_X(x) BIT(x, 3)
-/// 获取PTE的W位
-#define PTE_W(x) BIT(x, 2)
-/// 获取PTE的R位
-#define PTE_R(x) BIT(x, 1)
-/// 获取PTE的V位
-#define PTE_v(x) BIT(x, 0)
+/// 获取PTE中的物理页面起始地址
+#define PTE_PPN(x) (BITS(x, 53, 10) << 10)
 
+#define _D 7
+#define _A 6
+#define _G 5
+#define _U 4
+#define _X 3
+#define _W 2
+#define _R 1
+#define _V 0
+/// 获取PTE的标志位
+#define GPTE_FLAG(x, tag) GET_BIT(x, _ ## tag)
+/// 获取PTE的标志位
+#define GPTE_FLAGS(x) BITS(x, 9, 0)
+/// 设置PTE的标志位
+#define SPTE_FLAG(x, tag) SET_BIT(x, _ ## tag)
+/// 设置PTE的标志位
+#define SPTE_FLAGS(x, flags) (x | GPTE_FLAGS(flags))
+
+typedef uint64_t *pagetable_t;
+typedef uint64_t pte_t;
 
 #endif

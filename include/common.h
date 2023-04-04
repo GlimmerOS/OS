@@ -27,10 +27,11 @@
 #define ARRLEN(arr) ( sizeof(arr) / sizeof(arr[0]) )
 
 /// 生成低len位的掩码
-#define LOW_MASK(len) ((1 << len) - 1)
+#define LOW_MASK(len) ((1ull << (len)) - 1)
 
 /// 位获取，获取一个数[hi, lo]之间的比特位
-#define BITS(x, hi, lo) ((x >> lo) & LOW_MASK(hi - lo + 1))
-#define BIT(x, p) BITS(x, p, p)
+#define BITS(x, hi, lo) ((x >> (lo)) & LOW_MASK((hi) - (lo) + 1))
+#define GET_BIT(x, p) BITS(x, p, p)
+#define SET_BIT(x, p) (x | (1ull << p))
 
 #endif
