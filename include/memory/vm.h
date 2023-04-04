@@ -12,13 +12,16 @@
 
 // physical address
 /// 获取物理地址的物理页面的起始地址
-#define PA_PPN(x) (BITS(x, 55, 12) << 12)
+#define PA_PPN(x) BITS(x, 55, 12)
 /// 获取物理地址的偏移量
 #define PA_PO(x) BITS(x, 11, 0)
 
+/// 将物理地址转化为PTE的PPN
+#define PA2PTE(x) (PA_PPN(x) << 10)
+
 // PTE
 /// 获取PTE中的物理页面起始地址
-#define PTE_PPN(x) (BITS(x, 53, 10) << 10)
+#define PTE_PPN(x) BITS(x, 53, 10)
 
 #define _D 7
 #define _A 6
@@ -36,6 +39,9 @@
 #define SPTE_FLAG(x, tag) SET_BIT(x, _ ## tag)
 /// 设置PTE的标志位
 #define SPTE_FLAGS(x, flags) (x | GPTE_FLAGS(flags))
+
+/// 截取PTE中的PPN并转化为PA
+#define PTE2PA(x) (PTE_PPN(x) << 12)
 
 typedef uint64_t *pagetable_t;
 typedef uint64_t pte_t;

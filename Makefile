@@ -80,8 +80,11 @@ gdb: $(KERNELBIN)
 	@echo "**********Start riscv64-unknown-linux-gnu-gdb on another window"
 	$(QEMU) $(QEMUFLAGS) -kernel $(KERNELBIN) $(QEMUGDBFLAGS) 
 
+docs:
+	./docs.sh
+
 # clean project not needed files
 clean:
 	rm -f $(KERNELOBJ) $(USEROBJ) $(KERNELOBJ:%.o=%.d) $(USEROBJ:%.o:%.d) $(KERNELBIN)
 
-.PHONY: clean run gdb
+.PHONY: clean run gdb docs
