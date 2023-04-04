@@ -3,14 +3,15 @@
 #include "lib/string.h"
 #include "debug.h"
 
+/// 可用物理地址的最小值
 extern char end[];
 
-// 物理页结构
-struct Page {
-  struct Page *next;
+/// 物理页结构
+struct pPage {
+  struct pPage *next;
 };
 
-static struct Page *_free;
+static struct pPage *_free;
 
 /**
  * 初始化可以使用的物理页面链表
@@ -34,11 +35,10 @@ void init_physic_memory(){
 
 /**
  * 分配一个物理页面
- * 分配成功返回一个void类型指针
- * @return 分配失败返回为0
+ * @return 分配成功返回一个void类型指针, 分配失败返回为0
  */
 void* alloc_physic_page() {
-  struct Page *page;
+  struct pPage *page;
 
   page = _free;
 
@@ -55,7 +55,7 @@ void* alloc_physic_page() {
 
 /**
  * @param addr 需要释放页面的起始地址
- * 释放成功后返回
+ * @return 释放成功后返回
  */
 void free_physic_page(void* addr) {
   Assert(addr != NULL, "The page to be freed is null!");
@@ -63,7 +63,7 @@ void free_physic_page(void* addr) {
   Assert((uint64_t)addr == PAGE_START((uint64_t)addr), "The page to be freed is not aligned!");
 
   memset(addr, 0xff, PAGE_SIZE);
-  struct Page *page = addr;
+  struct pPage *page = addr;
 
   page->next = _free;
   _free = page;

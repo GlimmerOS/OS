@@ -20,10 +20,10 @@
 #define ANSI_BG_WHITE   "\e[1;47m"
 #define ANSI_NONE       "\e[0m"
 
-// 以一种颜色输出
+/// 以一种颜色组合输出
 #define ANSI_FMT(str, fmt) fmt str ANSI_NONE
 
-// 获取一个数组的长度，包括结构体数组
+/// 获取一个数组的长度，包括结构体数组
 #define ARRLEN(arr) ( sizeof(arr) / sizeof(arr[0]) )
 
 #endif
