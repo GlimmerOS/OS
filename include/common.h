@@ -20,10 +20,18 @@
 #define ANSI_BG_WHITE   "\e[1;47m"
 #define ANSI_NONE       "\e[0m"
 
-// 以一种颜色输出
+/// 以一种颜色组合输出
 #define ANSI_FMT(str, fmt) fmt str ANSI_NONE
 
-// 获取一个数组的长度，包括结构体数组
+/// 获取一个数组的长度，包括结构体数组
 #define ARRLEN(arr) ( sizeof(arr) / sizeof(arr[0]) )
+
+/// 生成低len位的掩码
+#define LOW_MASK(len) ((1ull << (len)) - 1)
+
+/// 位获取，获取一个数[hi, lo]之间的比特位
+#define BITS(x, hi, lo) ((x >> (lo)) & LOW_MASK((hi) - (lo) + 1))
+#define GET_BIT(x, p) BITS(x, p, p)
+#define SET_BIT(x, p) (x | (1ull << p))
 
 #endif

@@ -8,3 +8,6 @@
 !*.cpp
 !*.cc
 !.gdbinit
+documents
+!Doxyfile
+!docs.sh

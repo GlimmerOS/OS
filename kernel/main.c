@@ -1,9 +1,6 @@
 #include "stdc.h"
 #include "debug.h"
-#include "lib/stdio.h"
-#include "lib/stdlib.h"
-#include "process/cpu.h"
-#include "memory/memory.h"
+#include "kernel.h"
 
 __attribute__ (( aligned(16) )) char boot_stack[4096];
 
@@ -12,5 +9,6 @@ void main() {
 
   Log("Starting GlimmerOS");
   
-  init_physic_memory();
+  physic_memory_init();
+  kernel_pagetable_init();
 }

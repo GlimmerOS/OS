@@ -6,11 +6,11 @@
 
 static char digits[] = "0123456789abcdef";
 
-/*
- * @ch: 将要输出的字符
+/**
  * 将一个字符输出到终端上
- * 正常返回返回0
- * 异常返回负数
+ * @param ch 将要输出的字符
+ * @return 正常返回返回0, 异常返回负数
+ * 
  */
 int putchar(int ch) {
   return sbi_console_putchar(ch);
@@ -27,7 +27,7 @@ enum {
   TY_PERCENT,
 };
 
-// 支持打印的数据类型的格式串
+//! 支持打印的数据类型的格式串
 static struct rule {
   char *target;
   int type;
@@ -44,10 +44,13 @@ static struct rule {
 
 #define NR_RULES ARRLEN(rules)
 
-/*
- * @num: 一个32位有符号整形数
- * @base: 进制数
+/**
  * 打印一个32位有符号整形数
+ *
+ * @param num 一个32位有符号整形数
+ * @param base 进制数
+ *
+ * @return 无返回
  */
 static void print_int32(int32_t num, int base) {
   char buf[32];
@@ -68,10 +71,13 @@ static void print_int32(int32_t num, int base) {
   }
 }
 
-/*
- * @num: 一个64位有符号整形数
- * @base: 进制数
+/**
  * 打印一个64位有符号整形数
+ *
+ * @param num 一个64位有符号整形数
+ * @param base 进制数
+ *
+ * @return 无返回
  */
 static void print_int64(int64_t num, int base) {
   char buf[64];
@@ -92,10 +98,13 @@ static void print_int64(int64_t num, int base) {
   }
 }
 
-/*
- * @num: 一个32位无符号整形数
- * @base: 进制数
+/**
  * 打印一个32位无符号整形数
+ *
+ * @param num 一个32位无符号整形数
+ * @param base 进制数
+ *
+ * @return 无返回
  */
 static void print_uint32(uint32_t num, int base) {
   char buf[32];
@@ -111,10 +120,13 @@ static void print_uint32(uint32_t num, int base) {
   }
 }
 
-/*
- * @num: 一个64位无符号整形数
- * @base: 进制数
+/**
  * 打印一个64位无符号整形数
+ *
+ * @param num 一个64位无符号整形数
+ * @param base 进制数
+ *
+ * @return 无返回
  */
 static void print_uint64(uint64_t num, int base) {
   char buf[64];
@@ -130,6 +142,13 @@ static void print_uint64(uint64_t num, int base) {
   }
 }
 
+/**
+ * 打印指针
+ *
+ * @param ptr 指针类型数据
+ * 
+ * @return 无返回
+ */
 static void print_pointer(void *ptr) {
   uint64_t address = (uint64_t)ptr;
   char buf[20];
@@ -150,6 +169,13 @@ static void print_pointer(void *ptr) {
   }
 }
 
+/**
+ * 打印字符串
+ *
+ * @param s 字符串的首地址
+ *
+ * @return 无返回
+ */
 static void print_string(char *s) {
   size_t i = 0;
   while (s[i] != '\0') {
@@ -158,10 +184,12 @@ static void print_string(char *s) {
   }
 }
 
-/*
- * @fmt: 描述需要打印的内容的格式串
+/**
  * 打印格式串中描述的内容
- * 无返回
+ *
+ * @param fmt 描述需要打印的内容的格式串
+ * 
+ * @return 无返回
  */
 void printf(char *fmt, ...) {
   va_list ap;
@@ -231,6 +259,9 @@ void printf(char *fmt, ...) {
   va_end(ap);
 }
 
+/**
+ * 打印LOGO
+ */
 void print_glimmeros(void) {
   printf("\
        ______   __   _                                  ____  _____\n\
