@@ -23,6 +23,8 @@
 /// 获取PTE中的物理页面起始地址
 #define PTE_PPN(x) BITS(x, 53, 10)
 
+#define _F 9
+#define _C 8
 #define _D 7
 #define _A 6
 #define _G 5
@@ -37,6 +39,8 @@
 #define GPTE_FLAGS(x) BITS(x, 9, 0)
 /// 设置PTE的标志位
 #define SPTE_FLAG(x, tag) SET_BIT(x, _ ## tag)
+/// 创建PTE的标志位
+#define MPTE_FLAG(tag) SPTE_FLAG(0, tag)
 /// 设置PTE的标志位
 #define SPTE_FLAGS(x, flags) (x | GPTE_FLAGS(flags))
 
@@ -45,5 +49,10 @@
 
 typedef uint64_t *pagetable_t;
 typedef uint64_t pte_t;
+
+void kernel_page_init();
+word_t va_map_pa(pagetable_t pagetable, addr_t va, addr_t pa, addr_t flags);
+word_t va_unmap_pa(pagetable_t pagetable, addr_t va);
+void kernel_pagetable_init();
 
 #endif

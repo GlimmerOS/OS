@@ -13,8 +13,11 @@
 /// 可用物理地址的最大值
 #define PHYSIC_MEM_TOP 0x88000000
 
+/// 系统内核起始位置
+#define KERNEL_BASE 0x80200000
+
 // kinit
-void init_physic_memory();
+void physic_memory_init();
 // kalloc
 void* alloc_physic_page();
 // kfree

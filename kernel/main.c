@@ -9,5 +9,6 @@ void main() {
 
   Log("Starting GlimmerOS");
   
-  init_physic_memory();
+  physic_memory_init();
+  kernel_pagetable_init();
 }

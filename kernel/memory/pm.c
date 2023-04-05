@@ -27,7 +27,7 @@ static void init_free_list() {
 /**
  * 物理内存初始化
  */
-void init_physic_memory(){
+void physic_memory_init(){
   Log("Initializing physical memory");
   init_free_list();
   Log("Initialized physical memory");
