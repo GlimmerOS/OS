@@ -32,7 +32,7 @@
 static inline uint64_t
 read_mhartid()
 {
-  return READ_CSR(m, hartid);
+  return READ_GRR(tp);
 }
 
 /*
