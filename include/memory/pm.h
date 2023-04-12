@@ -11,10 +11,10 @@
 #define PAGE_DOWN(x) PAGE_START(x - PAGE_SIZE)
 
 /// 可用物理地址的最大值
-#define PHYSIC_MEM_TOP 0x88000000
+#define PHYSIC_MEM_TOP 0x88000000l
 
 /// 系统内核起始位置
-#define KERNEL_BASE 0x80200000
+#define KERNEL_BASE 0x80200000l
 
 // kinit
 void physic_memory_init();
