@@ -263,6 +263,7 @@ void printf(char *fmt, ...) {
  * 打印LOGO
  */
 void print_glimmeros(void) {
+  putchar('\n');
   printf("\
        ______   __   _                                  ____  _____\n\
       / ____/  / /  (_)___ ___  ____ ___  ___  _____   / __ \\/ ___/ \n\

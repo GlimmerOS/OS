@@ -3,34 +3,36 @@
 
 #include "stdint.h"
 
+/// 读取通用寄存器宏
+#define READ_GRR(name) ({ \
+    uint64_t _tmp; \
+    asm volatile("mv %0, " #name :"=r"(_tmp)); \
+    _tmp; \
+    }) 
+
+/// 写入通用寄存器宏
+#define WRITE_GRR(name, val) ({ \
+    asm volatile("mv " #name ", %0": :"r"(val)); \
+    })
+
+/// 读取控制状态寄存器, lev表示M-MODE, S-MODE, U-MODE或者其他的
+#define READ_CSR(lev, name) ({ \
+    uint64_t _tmp; \
+    asm volatile("csrr %0, " #lev #name :"=r"(_tmp)); \
+    _tmp; \
+    })
+
+/// 写入控制状态寄存器, lev表示M-MODE, S-MODE, U-MODE或者其他的
+#define WRITE_CSR(lev, name, val) ({ \
+    asm volatile("csrw " #lev #name ", %0": :"r"(val)); \
+    })
+
 #define SSTATUS_SIE (1L << 1) //S-mode中断位
 
 static inline uint64_t
 read_mhartid()
 {
-  uint64_t x;
-  asm volatile("csrr %0, mhartid" : "=r" (x) );
-  return x;
-}
-
-/* static inline uint64_t r_ra() {
-  uint64_t ret;
-
-  asm volatile ("mv %0, ra" : "=r"(ret));
-
-  return ret;
-} */
-static inline uint64_t
-r_sstatus()
-{
-  uint64_t x;
-  asm volatile("csrr %0, sstatus" : "=r" (x) );
-  return x;
-}
-static inline void 
-w_sstatus(uint64_t x)
-{
-  asm volatile("csrw sstatus, %0" : : "r" (x));
+  return READ_CSR(m, hartid);
 }
 
 /*
@@ -40,17 +42,8 @@ w_sstatus(uint64_t x)
 static inline int
 intr_get()
 {
-  uint64_t x = r_sstatus();
+  uint64_t x = READ_CSR(s, status);
   return (x & SSTATUS_SIE) != 0;
-}
-
-//读取tp寄存器
-static inline uint64_t
-read_tp()
-{
-  uint64_t x;
-  asm volatile("mv %0, tp" : "=r" (x) );
-  return x;
 }
 
 /*
@@ -59,7 +52,7 @@ read_tp()
 static inline void
 intr_off()
 {
-  w_sstatus(r_sstatus() & ~SSTATUS_SIE);
+  WRITE_CSR(s, status, READ_CSR(s, status) & ~SSTATUS_SIE);
 }
 
 /*
@@ -68,7 +61,7 @@ intr_off()
 static inline void
 intr_on()
 {
-  w_sstatus(r_sstatus() | SSTATUS_SIE);
+  WRITE_CSR(s, status, READ_CSR(s, status) | SSTATUS_SIE);
 }
 
 #endif
