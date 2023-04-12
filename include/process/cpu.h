@@ -1,8 +1,10 @@
 #ifndef _CPU_H
 #define _CPU_H
 
+/// CPU的数量
+#define NCPU 1
+
 //高度参考xv6的定义
-#include "lib/param.h"
 #include "riscv64.h"
 
 struct context {
