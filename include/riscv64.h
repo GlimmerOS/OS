@@ -27,7 +27,8 @@
     asm volatile("csrw " #lev #name ", %0": :"r"(val)); \
     })
 
-#define SSTATUS_SIE (1L << 1) //S-mode中断位
+/// S-mode中断位
+#define SSTATUS_SIE 1
 
 static inline uint64_t
 read_mhartid()

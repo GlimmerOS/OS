@@ -2,16 +2,28 @@
 #include "debug.h"
 #include "kernel.h"
 
+/// 内核栈
 __attribute__ (( aligned(16) )) char boot_stack[PAGE_SIZE];
 
+/**
+ * 初始化相关寄存器的值
+ *
+ * return 无返回
+ */
 static void env_init() {
+  // 将硬件线程号写入tp寄存器
   uint64_t hartid = READ_GRR(a0);
   WRITE_GRR(tp, hartid);
 
-  WRITE_CSR(s, status, READ_CSR(s, status) | 0x2);
+  // 设置sstatus的SIE位，启用中断
+  WRITE_CSR(s, status, READ_CSR(s, status) | SET_BIT(0, SSTATUS_SIE));
+  // 设置sie寄存器，设置允许的中断
   WRITE_CSR(s, ie, 0x222);
 }
 
+/**
+ * 操作系统主函数
+ */
 void main() {
   env_init();
 
