@@ -1,4 +1,5 @@
 #include "memory/pm.h"
+#include "lock/spinlock.h"
 #include "stdint.h"
 #include "lib/string.h"
 #include "debug.h"
@@ -10,6 +11,9 @@ extern char end[];
 struct pPage {
   struct pPage *next;
 };
+
+/// 物理空闲页表链表锁
+static struct spinlock pPage_list_lock;
 
 static struct pPage *_free;
 
@@ -29,22 +33,28 @@ static void init_free_list() {
  */
 void physic_memory_init(){
   Log("Initializing physical memory");
+
+  init_lock(&pPage_list_lock, "physical page list lock");
   init_free_list();
+
   Log("Initialized physical memory");
 }
 
 /**
  * 分配一个物理页面
+ *
  * @return 分配成功返回一个void类型指针, 分配失败返回为0
  */
 void* alloc_physic_page() {
   struct pPage *page;
 
+  acquire(&pPage_list_lock);
   page = _free;
 
   if (page != NULL) {
     _free = _free->next;
   }
+  release(&pPage_list_lock);
 
   if (page) {
     memset(page, 0, PAGE_SIZE);
@@ -55,6 +65,7 @@ void* alloc_physic_page() {
 
 /**
  * @param addr 需要释放页面的起始地址
+ *
  * @return 释放成功后返回
  */
 void free_physic_page(void* addr) {
@@ -65,6 +76,8 @@ void free_physic_page(void* addr) {
   memset(addr, 0xff, PAGE_SIZE);
   struct pPage *page = addr;
 
+  acquire(&pPage_list_lock);
   page->next = _free;
   _free = page;
+  release(&pPage_list_lock);
 }

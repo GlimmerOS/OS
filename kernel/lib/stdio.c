@@ -5,7 +5,12 @@
 #include "common.h"
 #include <stdarg.h>
 
-static struct spinlock stdio_lock;
+/// printf锁
+static struct spinlock printf_lock = {
+  0,
+  "printf lock",
+  0
+};
 
 static char digits[] = "0123456789abcdef";
 
@@ -200,7 +205,7 @@ void printf(char *fmt, ...) {
   size_t num;
   void *ptr;
 
-  acquire(&stdio_lock);
+  acquire(&printf_lock);
   
   va_start(ap, fmt);
   while (fmt[pos] != '\0') {
@@ -263,7 +268,7 @@ void printf(char *fmt, ...) {
   }
   va_end(ap);
 
-  release(&stdio_lock);
+  release(&printf_lock);
 }
 
 /**
