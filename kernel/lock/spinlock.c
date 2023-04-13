@@ -22,7 +22,7 @@ void acquire(struct spinlock *lock) {
 
     Assert(!holding(lock), "The lock is hold!");
     
-    /**
+    /*
     * 这个__syn_lock_test_and_set 函数实际上是RISC-V 中的一次原子操作
     * 具体是 a5 = arg2; s1 = arg1; amoswap.w.aq a5, a5, (s1)
     * 而amoswap.w.aq rd, rs1, (rs1) 具体操作则是将rs1指向地址上的值填入rd，再将rs1的值填入rs1指向地址。此过程其他cpu无法访问rs2。
