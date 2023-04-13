@@ -1,6 +1,59 @@
 #include "lib/string.h"
 
 /**
+ * 内存复制，复制长度为n
+ *
+ * 目标块不可以和源块重叠
+ * 如果重叠，请使用memmove
+ *
+ * @param dest 目标内存的地址
+ * @param src 源内存地址
+ *
+ * @return void* 目标内存地址
+ */
+void *memcpy(void *dest, const void* src, size_t n) {
+  size_t i = 0;
+
+  const char *s = src;
+  char *d = dest;
+
+  while (i < n) {
+    d[i] = s[i];
+    i++;
+  }
+
+  return d;
+}
+
+/**
+ * 内存复制，复制长度为n
+ *
+ * @param dest 目标内存的地址
+ * @param src 源内存地址
+ *
+ * @return void* 目标内存地址
+ */
+void *memmove(void *dest, const void* src, size_t n) {
+  char tmp[n];
+  const char* s = src;
+  char* d = dest;
+
+  size_t i = 0;
+  while (i < n) {
+    tmp[i] = s[i];
+    i++;
+  }
+
+  i = 0;
+  while (i < n) {
+    d[i] = tmp[i];
+    i++;
+  }
+
+  return d;
+}
+
+/**
  * 初始化内存值
  *
  * @param addr the address of the area
