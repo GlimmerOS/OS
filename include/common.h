@@ -31,7 +31,11 @@
 
 /// 位获取，获取一个数[hi, lo]之间的比特位
 #define BITS(x, hi, lo) ((x >> (lo)) & LOW_MASK((hi) - (lo) + 1))
+/// 位获取，获取下标为p的比特
 #define GET_BIT(x, p) BITS(x, p, p)
+/// 在下标为p的位置上置1
 #define SET_BIT(x, p) (x | (1ull << p))
+/// 在下标为p的位置上置0
+#define CLEAR_BIT(x, p) (x & ~(1ull << p))
 
 #endif
