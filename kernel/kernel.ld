@@ -6,6 +6,7 @@ SECTIONS
 {
   . = BASE_ADDRESS;
   .text : {
+    *(entry_section)
     *(.text .text.*)
     . = ALIGN(0x1000);
     *(trap_section)

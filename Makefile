@@ -45,13 +45,9 @@ INCLUDEPATH = $(WORKDIR)/include
 CFLAGS += $(addprefix -I, $(INCLUDEPATH))
 
 # kernel info
-KERNELENTRY = entry
-
 KERNELSRC = $(shell find $(WORKDIR)/kernel -name "*.c")
-ASMFILES = $(shell find $(WORKDIR)/kernel -name "*.S")
-KERNELASM := $(filter-out $(K)/entry.S, $(ASMFILES))
-KERNELOBJ = $(K)/$(KERNELENTRY).o
-KERNELOBJ += $(KERNELSRC:%.c=%.o)
+KERNELASM = $(shell find $(WORKDIR)/kernel -name "*.S")
+KERNELOBJ = $(KERNELSRC:%.c=%.o)
 KERNELOBJ += $(KERNELASM:%.S=%.o)
 -include $(KERNELSRC:%.c:%.d)
 KERNELBIN = $(K)/kernel
