@@ -27,6 +27,9 @@
     asm volatile("csrw " #lev #name ", %0": :"r"(val)); \
     })
 
+/// 更新TLB
+#define FENCE_VMA do { asm volatile("sfence.vma"); } while(0)
+
 // sstatus
 #define SSTATUS_SIE 1
 #define SSTATUS_SPIE 5
