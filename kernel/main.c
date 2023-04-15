@@ -43,6 +43,8 @@ void main() {
     
     physic_memory_init();
     kernel_pagetable_init();
+
+    kernel_trap_init();
   } else {
     while (1) {};
   }

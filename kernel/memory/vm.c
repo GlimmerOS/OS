@@ -1,8 +1,5 @@
-#include "memory/pm.h"
-#include "memory/vm.h"
-#include "memory/vmlayout.h"
+#include "kernel.h"
 #include "debug.h"
-#include "riscv64.h"
 
 /// 内核页表
 static pagetable_t kernel_pagetable;
@@ -117,4 +114,5 @@ void kernel_pagetable_init() {
   FENCE_VMA;
   WRITE_CSR(s, atp, SET_SATP((uint64_t)kernel_pagetable));
   FENCE_VMA;
+  Log("Finish set satp");
 }

@@ -12,7 +12,8 @@
 
 /// 写入通用寄存器宏
 #define WRITE_GRR(name, val) ({ \
-    asm volatile("mv " #name ", %0": :"r"(val)); \
+    uint64_t _tmp = val; \
+    asm volatile("mv " #name ", %0": :"r"(_tmp)); \
     })
 
 /// 读取控制状态寄存器, lev表示M-MODE, S-MODE, U-MODE或者其他的
@@ -24,7 +25,8 @@
 
 /// 写入控制状态寄存器, lev表示M-MODE, S-MODE, U-MODE或者其他的
 #define WRITE_CSR(lev, name, val) ({ \
-    asm volatile("csrw " #lev #name ", %0": :"r"(val)); \
+    uint64_t _tmp = val; \
+    asm volatile("csrw " #lev #name ", %0": :"r"(_tmp)); \
     })
 
 /// 更新TLB

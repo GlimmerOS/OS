@@ -38,7 +38,7 @@ QEMUFLAGS = -machine $(MACHINE) \
 						-nographic
 
 # C compile options
-CFLAGS = -Wall -Werror -ggdb \
+CFLAGS = -Wall -Werror -ggdb3 \
 				 -MD \
 				 -ffreestanding -fno-common -nostdlib -mno-relax -mcmodel=medany
 INCLUDEPATH = $(WORKDIR)/include
