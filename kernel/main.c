@@ -1,6 +1,7 @@
 #include "stdc.h"
 #include "debug.h"
 #include "kernel.h"
+#include "common.h"
 
 /// 内核栈
 __attribute__ (( aligned(16) )) char boot_stack[PAGE_SIZE * NCPU];
@@ -8,7 +9,7 @@ __attribute__ (( aligned(16) )) char boot_stack[PAGE_SIZE * NCPU];
 /**
  * 初始化相关寄存器的值
  *
- * return 无返回
+ * @return 无返回
  */
 static void env_init() {
   // 将硬件线程号写入tp寄存器
@@ -16,13 +17,20 @@ static void env_init() {
   WRITE_GRR(tp, hartid);
 
   // 设置sstatus的SIE位，启用中断
-  WRITE_CSR(s, status, READ_CSR(s, status) | SET_BIT(0, SSTATUS_SIE));
-  // 设置sie寄存器，设置允许的中断
-  WRITE_CSR(s, ie, 0x222);
+  WRITE_CSR(s, status, SET_BIT(READ_CSR(s, status), SSTATUS_SIE));
+
+  // 设置SIE寄存器
+  uint64_t sie = 0;
+  sie = SET_BIT(sie, SIE_SEIE);
+  sie = SET_BIT(sie, SIE_STIE);
+  sie = SET_BIT(sie, SIE_SSIE);
+  WRITE_CSR(s, ie, sie);
 }
 
 /**
  * 操作系统主函数
+ *
+ * @return 无返回
  */
 void main() {
   env_init();
@@ -35,6 +43,8 @@ void main() {
     
     physic_memory_init();
     kernel_pagetable_init();
+
+    kernel_trap_init();
   } else {
     while (1) {};
   }

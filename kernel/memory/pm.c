@@ -1,7 +1,5 @@
-#include "memory/pm.h"
-#include "lock/spinlock.h"
-#include "stdint.h"
-#include "lib/string.h"
+#include "kernel.h"
+#include "stdc.h"
 #include "debug.h"
 
 /// 可用物理地址的最小值

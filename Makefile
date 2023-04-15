@@ -38,20 +38,16 @@ QEMUFLAGS = -machine $(MACHINE) \
 						-nographic
 
 # C compile options
-CFLAGS = -Wall -Werror -ggdb \
+CFLAGS = -Wall -Werror -ggdb3 \
 				 -MD \
 				 -ffreestanding -fno-common -nostdlib -mno-relax -mcmodel=medany
 INCLUDEPATH = $(WORKDIR)/include
 CFLAGS += $(addprefix -I, $(INCLUDEPATH))
 
 # kernel info
-KERNELENTRY = entry
-
 KERNELSRC = $(shell find $(WORKDIR)/kernel -name "*.c")
-ASMFILES = $(shell find $(WORKDIR)/kernel -name "*.S")
-KERNELASM := $(filter-out $(K)/entry.S, $(ASMFILES))
-KERNELOBJ = $(K)/$(KERNELENTRY).o
-KERNELOBJ += $(KERNELSRC:%.c=%.o)
+KERNELASM = $(shell find $(WORKDIR)/kernel -name "*.S")
+KERNELOBJ = $(KERNELSRC:%.c=%.o)
 KERNELOBJ += $(KERNELASM:%.S=%.o)
 -include $(KERNELSRC:%.c:%.d)
 KERNELBIN = $(K)/kernel
