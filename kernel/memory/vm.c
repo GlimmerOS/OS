@@ -5,6 +5,8 @@
 static pagetable_t kernel_pagetable;
 /// 内核代码结束位置
 extern char endtext[];
+/// 内核只读数据结束位置
+extern char endrodata[];
 /// trampoline的地址
 extern char trampoline[];
 
@@ -98,6 +100,11 @@ void kernel_pagetable_init() {
   addr_t kaddr = KERNEL_BASE;
   for (; kaddr < (addr_t)endtext; kaddr += PAGE_SIZE) {
     va_map_pa(kernel_pagetable, kaddr, kaddr, MPTE_FLAG(R) | MPTE_FLAG(X));
+  }
+
+  // map rodata part
+  for (; kaddr < (addr_t)endrodata; kaddr += PAGE_SIZE) {
+    va_map_pa(kernel_pagetable, kaddr, kaddr, MPTE_FLAG(R));
   }
 
   // map data part

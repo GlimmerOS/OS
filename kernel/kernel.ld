@@ -10,9 +10,9 @@ SECTIONS
     *(.text .text.*)
     . = ALIGN(0x1000);
     *(trap_section)
-    . = ALIGN(0x1000);
-    PROVIDE(endtext = .);
   }
+  . = ALIGN(0x1000);
+  PROVIDE(endtext = .);
 
   .rodata : {
     . = ALIGN(16);
@@ -20,6 +20,8 @@ SECTIONS
     . = ALIGN(16);
     *(.rodata .rodata.*)
   }
+  . = ALIGN(0x1000);
+  PROVIDE(endrodata = .);
 
   .data : {
     . = ALIGN(16);
