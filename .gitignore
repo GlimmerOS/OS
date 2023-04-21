@@ -9,5 +9,6 @@
 !*.cc
 !.gdbinit
 documents
+build
 !Doxyfile
 !docs.sh

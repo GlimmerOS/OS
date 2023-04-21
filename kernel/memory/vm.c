@@ -50,7 +50,7 @@ word_t va_map_pa(pagetable_t pagetable, addr_t va, addr_t pa, word_t flags) {
     }
   }
 
-  pagetable[VA_VPN(va, 0)] = SPTE_FLAGS(PA2PTE(pa), flags);
+  pagetable[VA_VPN(va, 0)] = SPTE_FLAGS(PA2PTE(pa), flags | MPTE_FLAG(V));
 
   return 1;
 }

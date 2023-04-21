@@ -7,6 +7,7 @@ void kernelvec();
 void kernel_trap_init() {
   Log("Set stvec");
   WRITE_CSR(s, tvec, (uint64_t)kernelvec);
+  Log("Finish set stvec");
 }
 
 void kernel_trap_handler() {
