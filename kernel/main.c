@@ -37,7 +37,7 @@ void main() {
 
   int hartid = read_mhartid();
   if (hartid == 0) {
-    print_glimmeros();
+    print_logo();
 
     Log("Starting GlimmerOS");
     
