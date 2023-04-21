@@ -16,6 +16,9 @@
 /// 系统内核起始位置
 #define KERNEL_BASE 0x80200000l
 
+/// uart2850的虚拟地址
+#define UART_BASE 0x10000000l
+
 // kinit
 void physic_memory_init();
 // kalloc

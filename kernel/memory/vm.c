@@ -50,7 +50,7 @@ word_t va_map_pa(pagetable_t pagetable, addr_t va, addr_t pa, word_t flags) {
     }
   }
 
-  pagetable[VA_VPN(va, 0)] = SPTE_FLAGS(PA2PTE(pa), flags);
+  pagetable[VA_VPN(va, 0)] = SPTE_FLAGS(PA2PTE(pa), flags | MPTE_FLAG(V));
 
   return 1;
 }
@@ -94,8 +94,12 @@ void kernel_pagetable_init() {
   kernel_pagetable = alloc_physic_page();
   Assert(kernel_pagetable != NULL, "alloc kernel pagetable failed!");
 
+  // map uart2850 part
+  addr_t kaddr = UART_BASE;
+  va_map_pa(kernel_pagetable, kaddr, kaddr, MPTE_FLAG(R) | MPTE_FLAG(W));
+
   // map text part
-  addr_t kaddr = KERNEL_BASE;
+  kaddr = KERNEL_BASE;
   for (; kaddr < (addr_t)endtext; kaddr += PAGE_SIZE) {
     va_map_pa(kernel_pagetable, kaddr, kaddr, MPTE_FLAG(R) | MPTE_FLAG(X));
   }
