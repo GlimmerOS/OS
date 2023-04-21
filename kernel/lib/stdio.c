@@ -1,6 +1,6 @@
 #include "lib/stdio.h"
 #include "stdint.h"
-#include "string.h"
+#include "lib/string.h"
 #include "common.h"
 
 static char digits[] = "0123456789abcdef";
@@ -95,7 +95,7 @@ enum {
   T_P,
 };
 
-char *type[] = {
+char *types[] = {
   [T_D] = "d",
   [T_LD] = "ld",
   [T_S] = "s",
@@ -108,7 +108,7 @@ char *type[] = {
   [T_P] = "p",
 };
 
-#define NR_TYPE ARRLEN(type)
+#define NR_TYPE ARRLEN(types)
 
 static void num_print_env(int type) {
   switch (type) {
@@ -169,6 +169,59 @@ int vprintf(const char *format, va_list ap) {
   ret = 0;
   out_target = 0;
 
+  while (*format) {
+    if (*format == '%') {
+      format++;
+
+      int type = 0;
+
+      for (; type < NR_TYPE; ++type) {
+        if (strncmp(format, types[type], strlen(types[type])) == 0) {
+          break;
+        }
+      }
+
+      switch (type) {
+        case T_PER:
+          putchar('%');
+          break;
+        case T_C:
+          number = va_arg(ap, int);
+          putchar(number);
+          break;
+        case T_S:
+          string = va_arg(ap, char*);
+          print_string();
+          break;
+        case T_D:
+        case T_X:
+        case T_U:
+          number = va_arg(ap, int);
+          num_print_env(type);
+          printf_num();
+          break;
+        case T_LD:
+        case T_LX:
+        case T_LU:
+        case T_P:
+          number = va_arg(ap, long);
+          num_print_env(type);
+          printf_num();
+          break;
+        default:
+          break;
+      }
+
+      if (type != NR_TYPE) {
+        ret++;
+        format += strlen(types[type]);
+        continue;
+      }
+    }
+
+    putchar(*format);
+    format++;
+  }
 
   out_size = -1;
 
