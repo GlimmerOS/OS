@@ -30,7 +30,7 @@
     })
 
 /// 更新TLB
-#define FENCE_VMA do { asm volatile("sfence.vma"); } while(0)
+#define FENCE_VMA do { asm volatile("sfence.vma zero, zero"); } while(0)
 
 // sstatus
 #define SSTATUS_SIE 1

@@ -1,268 +1,357 @@
 #include "lib/stdio.h"
 #include "stdint.h"
-#include "string.h"
+#include "lib/string.h"
 #include "common.h"
-#include <stdarg.h>
 
 static char digits[] = "0123456789abcdef";
+static int out_target = 0; // 0 is stdout, 1 is buffer
+static int base = 0; // out integer base
+static int negtive = 0; // 0 is unsigned, 1 is signed
+
+static long number = 0; // the number need to print
+static char* string = 0; // the string need to print
+
+static char* buffer = 0; // out buffer
+
+static int ret = 0; // the return value of print function
+static size_t out_size = -1; // the number of characters been out
 
 /**
- * 将一个字符输出到终端上
- * @param ch 将要输出的字符
- * @return 正常返回返回0, 异常返回负数
- * 
- */
-int putchar(int ch) {
-  return sbi_console_putchar(ch);
-}
-
-enum {
-  TY_INT32_10,
-  TY_INT64_10,
-  TY_UINT32_10,
-  TY_UINT64_10,
-  TY_STRING,
-  TY_POINTER,
-
-  TY_PERCENT,
-};
-
-//! 支持打印的数据类型的格式串
-static struct rule {
-  char *target;
-  int type;
-} rules[] = {
-  {"%d", TY_INT32_10},
-  {"%ld", TY_INT64_10},
-  {"%u", TY_UINT32_10},
-  {"%lu", TY_UINT64_10},
-  {"%s", TY_STRING},
-  {"%p", TY_POINTER},
-
-  {"%%", TY_PERCENT},
-};
-
-#define NR_RULES ARRLEN(rules)
-
-/**
- * 打印一个32位有符号整形数
+ * 输出一个字符到指定目标上
  *
- * @param num 一个32位有符号整形数
- * @param base 进制数
+ * @param ch 需要输出的字符
  *
  * @return 无返回
  */
-static void print_int32(int32_t num, int base) {
-  char buf[32];
-  int i = 0;
-
-  if (num < 0) {
-    sbi_console_putchar('-');
-    num = -num;
+static void output(int ch) {
+  if (out_size == 0) {
+    return;
   }
 
-  while (num > 0) {
-    buf[i++] = digits[num % base];
-    num /= base;
-  }
+  out_size--;
 
-  while (--i >= 0) {
-    sbi_console_putchar(buf[i]);
+  if (out_target == 0) {
+    sbi_console_putchar(ch);
+  } else {
+    *buffer = ch;
+    buffer++;
   }
 }
 
 /**
- * 打印一个64位有符号整形数
- *
- * @param num 一个64位有符号整形数
- * @param base 进制数
+ * 打印数字
  *
  * @return 无返回
  */
-static void print_int64(int64_t num, int base) {
-  char buf[64];
+static void printf_num() {
+  char buf[30];
   int i = 0;
 
-  if (num < 0l) {
-    sbi_console_putchar('-');
-    num = -num;
+  if (negtive == 1) {
+    if (number < 0) {
+      output('-');
+      number = -number;
+    }
+
+    while (number) {
+      buf[i++] = digits[number % base];
+      number /= base;
+    }
+  } else {
+    unsigned long unumber = number;
+    while (unumber) {
+      buf[i++] = digits[unumber % base];
+      unumber /= base;
+    }
   }
 
-  while (num > 0l) {
-    buf[i++] = digits[num % base];
-    num /= base;
-  }
-
-  while (--i >= 0) {
-    sbi_console_putchar(buf[i]);
-  }
-}
-
-/**
- * 打印一个32位无符号整形数
- *
- * @param num 一个32位无符号整形数
- * @param base 进制数
- *
- * @return 无返回
- */
-static void print_uint32(uint32_t num, int base) {
-  char buf[32];
-  int i = 0;
-
-  while (num > 0u) {
-    buf[i++]  = digits[num % base];
-    num /= base;
-  }
-
-  while (--i >= 0) {
-    sbi_console_putchar(buf[i]);
-  }
-}
-
-/**
- * 打印一个64位无符号整形数
- *
- * @param num 一个64位无符号整形数
- * @param base 进制数
- *
- * @return 无返回
- */
-static void print_uint64(uint64_t num, int base) {
-  char buf[64];
-  int i = 0;
-
-  while (num > 0lu) {
-    buf[i++]  = digits[num % base];
-    num /= base;
-  }
-
-  while (--i >= 0) {
-    sbi_console_putchar(buf[i]);
-  }
-}
-
-/**
- * 打印指针
- *
- * @param ptr 指针类型数据
- * 
- * @return 无返回
- */
-static void print_pointer(void *ptr) {
-  uint64_t address = (uint64_t)ptr;
-  char buf[20];
-  int i = 0;
-
-  while (address > 0lu) {
-    buf[i++]  = digits[address % 16];
-    address /= 16;
-  }
-  while (i != 16) {
-    buf[i++] = digits[0];
-  }
-
-  sbi_console_putchar('0');
-  sbi_console_putchar('x');
-  while (--i >= 0) {
-    sbi_console_putchar(buf[i]);
+  while (i > 0) {
+    output(buf[--i]);
   }
 }
 
 /**
  * 打印字符串
  *
- * @param s 字符串的首地址
- *
  * @return 无返回
  */
-static void print_string(char *s) {
-  size_t i = 0;
-  while (s[i] != '\0') {
-    sbi_console_putchar(s[i]);
-    i++;
+static void print_string() {
+  while (*string) {
+    output(*string);
+    string++;
+  }
+}
+
+enum {
+  T_D,
+  T_LD,
+  T_S,
+  T_X,
+  T_LX,
+  T_C,
+  T_PER,
+  T_U,
+  T_LU,
+  T_P,
+};
+
+char *types[] = {
+  [T_D] = "d",
+  [T_LD] = "ld",
+  [T_S] = "s",
+  [T_X] = "x",
+  [T_LX] = "lx",
+  [T_C] = "c",
+  [T_PER] = "%",
+  [T_U] = "u",
+  [T_LU] = "lu",
+  [T_P] = "p",
+};
+
+#define NR_TYPE ARRLEN(types)
+
+static void num_print_env(int type) {
+  switch (type) {
+    case T_D:
+    case T_LD:
+      base = 10;
+      negtive = 1;
+      break;
+    case T_X:
+    case T_LX:
+      base = 16;
+      negtive = 1;
+      break;
+    case T_U:
+    case T_LU:
+      base = 10;
+      negtive = 0;
+      break;
+    case T_P:
+      base = 16;
+      negtive = 0;
+      break;
+    default:
+      break;
   }
 }
 
 /**
- * 打印格式串中描述的内容
+ * 打印目标格式串的内容
  *
- * @param fmt 描述需要打印的内容的格式串
- * 
- * @return 无返回
+ * @param format 目标串的格式串
+ *
+ * @return int 返回成功打印的参数个数
  */
-void printf(char *fmt, ...) {
+int printf(const char *format, ...) {
+  ret = 0;
+  out_target = 0;
+  
   va_list ap;
-  size_t pos = 0;
-  size_t num;
-  void *ptr;
+  va_start(ap, format);
+  ret = vprintf(format, ap);
+  va_end(ap) ;
+  
+  out_size = -1;
 
-  va_start(ap, fmt);
-  while (fmt[pos] != '\0') {
-    if (fmt[pos] != '%') {
-      // not a formot
-      sbi_console_putchar(fmt[pos]);
-      pos++;
-      continue;
-    }
+  return ret;
+}
 
-    // a format
-    int i;
-    for (i = 0; i < NR_RULES; ++i) {
-      if (strncmp(fmt+pos, rules[i].target, strlen(rules[i].target)) == 0) {
-        break;
+/**
+ * 打印目标格式串的内容
+ *
+ * @param format 目标串的格式串
+ * @param ap 参数列表
+ *
+ * @return int 返回成功打印的参数个数
+ */
+int vprintf(const char *format, va_list ap) {
+  ret = 0;
+  out_target = 0;
+
+  while (*format) {
+    if (*format == '%') {
+      format++;
+
+      int type = 0;
+
+      for (; type < NR_TYPE; ++type) {
+        if (strncmp(format, types[type], strlen(types[type])) == 0) {
+          break;
+        }
+      }
+
+      switch (type) {
+        case T_PER:
+          putchar('%');
+          break;
+        case T_C:
+          number = va_arg(ap, int);
+          putchar(number);
+          break;
+        case T_S:
+          string = va_arg(ap, char*);
+          print_string();
+          break;
+        case T_D:
+        case T_X:
+        case T_U:
+          number = va_arg(ap, int);
+          num_print_env(type);
+          printf_num();
+          break;
+        case T_LD:
+        case T_LX:
+        case T_LU:
+        case T_P:
+          number = va_arg(ap, long);
+          num_print_env(type);
+          printf_num();
+          break;
+        default:
+          break;
+      }
+
+      if (type != NR_TYPE) {
+        ret++;
+        format += strlen(types[type]);
+        continue;
       }
     }
 
-    if (i == NR_RULES) {
-      // invalid format
-      sbi_console_putchar('%');
-      pos++;
-      continue;
-    }
-
-    // valid format
-    switch (rules[i].type) {
-      case TY_INT32_10:
-        num = va_arg(ap, int32_t);
-        print_int32(num, 10);
-        break;
-      case TY_INT64_10:
-        num = va_arg(ap, int64_t);
-        print_int64(num, 10);
-        break;
-      case TY_UINT32_10:
-        num = va_arg(ap, uint32_t);
-        print_uint32(num, 10);
-        break;
-      case TY_UINT64_10:
-        num = va_arg(ap, uint64_t);
-        print_uint64(num, 10);
-        break;
-      case TY_POINTER:
-        ptr = va_arg(ap, void *);
-        print_pointer(ptr);
-        break;
-      case TY_STRING:
-        ptr = va_arg(ap, char *);
-        print_string(ptr);
-        break;
-      case TY_PERCENT:
-        sbi_console_putchar('%');
-        break;
-      default:
-        break;
-    }
-
-    pos += strlen(rules[i].target);
+    putchar(*format);
+    format++;
   }
-  va_end(ap);
+
+  out_size = -1;
+
+  return ret;
+}
+
+/**
+ * 打印目标格式串的内容到指定串上
+ *
+ * @param out 指定的目标串
+ * @param format 目标串的格式串
+ * @param ap 参数列表
+ *
+ * @return int 返回成功打印的参数个数
+ */
+int vsprintf(char *out, const char *format, va_list ap) {
+  ret = 0;
+
+  out_target = 1;
+  buffer = out;
+
+  vprintf(format, ap);
+
+  *buffer = '\0';
+
+  out_size = -1;
+
+  return ret;
+}
+
+/**
+ * 打印目标格式串的内容到指定串上
+ *
+ * @param out 指定的目标串
+ * @param format 目标串的格式串
+ *
+ * @return int 返回成功打印的参数个数
+ */
+int sprintf(char *out, const char *format, ...) {
+  ret = 0;
+  out_target = 1;
+  buffer = out;
+
+  va_list ap;
+  va_start(ap, format);
+  ret = vsprintf(out, format, ap);
+  va_end(ap) ;
+
+  out_size = -1;
+  
+  return ret;
+}
+
+/**
+ * 打印目标格式串的内容到指定串上
+ *
+ * @param out 指定的目标串
+ * @param n 需要打印的长度
+ * @param format 目标串的格式串
+ *
+ * @return int 返回成功打印的参数个数
+ */
+int snprintf(char *out, size_t n, const char *format, ...) {
+  if (n == 0) {
+    return 0;
+  }
+
+  ret = 0;
+  out_target = 1;
+  buffer = out;
+  out_size = n - 1;
+
+  va_list ap;
+  va_start(ap, format);
+  ret = vsprintf(out, format, ap);
+  va_end(ap) ;
+
+  out_size = -1;
+
+  return 0;
+}
+
+/**
+ * 打印目标格式串的内容到指定串上
+ *
+ * @param out 指定的目标串
+ * @param n 需要打印的长度
+ * @param format 目标串的格式串
+ * @param ap 参数列表
+ *
+ * @return int 返回成功打印的参数个数
+ */
+int vsnprintf(char *out, size_t n, const char *format, va_list ap) {
+  if (n == 0) {
+    return 0;
+  }
+
+  ret = 0;
+  out_target = 1;
+  buffer = out;
+  out_size = n - 1;
+
+  ret = vsprintf(out, format, ap);
+
+  out_size = -1;
+
+  return 0;
+}
+
+/**
+ * 打印一个字符
+ *
+ * @param ch 需要打印的字符
+ *
+ * @return int 返回该字符
+ */
+int putchar(int ch) {
+  out_target = 0;
+  output(ch);
+
+  out_size = -1;
+  return ch;
 }
 
 /**
  * 打印LOGO
+ *
+ * @return 无返回
  */
-void print_glimmeros(void) {
+void print_logo(void) {
   putchar('\n');
   printf("\
        ______   __   _                                  ____  _____\n\

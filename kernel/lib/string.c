@@ -176,3 +176,53 @@ int strncmp(const char *s1, const char *s2, size_t n) {
 
   return i == n ? 0 : s1[i] - s2[i];
 }
+
+/**
+ * 拼接字符串
+ *
+ * @param dst 目标串的起始地址
+ * @param src 源串的起始地址
+ *
+ * @return 返回拼接后的字符串的起始地址
+ */
+char *strcat(char *dst, const char *src) {
+  size_t i = 0;
+  while (dst[i] != '\0') {
+    i++;
+  }
+
+  size_t j = 0;
+
+  while (src[j] != '\0') {
+    dst[i] = src[j];
+    i++;
+    j++;
+  }
+
+  dst[i] = '\0';
+
+  return dst;
+}
+
+/**
+ * 比较两个内存块的内容
+ *
+ * @param s1 第一个内存块的起始地址
+ * @param s2 第二个内存块的起始地址
+ * @param n 需要比较的的块的大小
+ *
+ * @return 如果第一个内存块的内容小于第二内存块，则返回小于0的数
+ * 相等返回0
+ * 大于返回大于0的数
+ */
+int memcmp(const void *s1, const void *s2, size_t n) {
+  const char *p1 = s1;
+  const char *p2 = s2;
+  size_t i = 0;
+
+  while (i < n && p1[i] != '\0' && p2[i] != '\0' && p1[i] == p2[i]) {
+    i++;
+  }
+
+  return i == n ? 0 : p1[i] - p2[i];
+}
