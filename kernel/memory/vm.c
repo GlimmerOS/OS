@@ -94,12 +94,8 @@ void kernel_pagetable_init() {
   kernel_pagetable = alloc_physic_page();
   Assert(kernel_pagetable != NULL, "alloc kernel pagetable failed!");
 
-  // map uart2850 part
-  addr_t kaddr = UART_BASE;
-  va_map_pa(kernel_pagetable, kaddr, kaddr, MPTE_FLAG(R) | MPTE_FLAG(W));
-
   // map text part
-  kaddr = KERNEL_BASE;
+  addr_t kaddr = KERNEL_BASE;
   for (; kaddr < (addr_t)endtext; kaddr += PAGE_SIZE) {
     va_map_pa(kernel_pagetable, kaddr, kaddr, MPTE_FLAG(R) | MPTE_FLAG(X));
   }

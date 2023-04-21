@@ -1,16 +1,8 @@
 #include "lib/stdio.h"
-#include "lock/spinlock.h"
 #include "stdint.h"
 #include "string.h"
 #include "common.h"
 #include <stdarg.h>
-
-/// printf锁
-static struct spinlock printf_lock = {
-  0,
-  "printf lock",
-  0
-};
 
 static char digits[] = "0123456789abcdef";
 
@@ -205,8 +197,6 @@ void printf(char *fmt, ...) {
   size_t num;
   void *ptr;
 
-  acquire(&printf_lock);
-  
   va_start(ap, fmt);
   while (fmt[pos] != '\0') {
     if (fmt[pos] != '%') {
@@ -267,8 +257,6 @@ void printf(char *fmt, ...) {
     pos += strlen(rules[i].target);
   }
   va_end(ap);
-
-  release(&printf_lock);
 }
 
 /**

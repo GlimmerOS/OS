@@ -14,10 +14,7 @@
 #define PHYSIC_MEM_TOP 0x88000000l
 
 /// 系统内核起始位置
-#define KERNEL_BASE 0x80000000l
-
-/// uart2850的虚拟地址
-#define UART_BASE 0x10000000l
+#define KERNEL_BASE 0x80200000l
 
 // kinit
 void physic_memory_init();
