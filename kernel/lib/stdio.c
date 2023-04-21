@@ -90,6 +90,9 @@ enum {
   T_LX,
   T_C,
   T_PER,
+  T_U,
+  T_LU,
+  T_P,
 };
 
 char *type[] = {
@@ -100,9 +103,38 @@ char *type[] = {
   [T_LX] = "lx",
   [T_C] = "c",
   [T_PER] = "%",
+  [T_U] = "u",
+  [T_LU] = "lu",
+  [T_P] = "p",
 };
 
 #define NR_TYPE ARRLEN(type)
+
+static void num_print_env(int type) {
+  switch (type) {
+    case T_D:
+    case T_LD:
+      base = 10;
+      negtive = 1;
+      break;
+    case T_X:
+    case T_LX:
+      base = 16;
+      negtive = 1;
+      break;
+    case T_U:
+    case T_LU:
+      base = 10;
+      negtive = 0;
+      break;
+    case T_P:
+      base = 16;
+      negtive = 0;
+      break;
+    default:
+      break;
+  }
+}
 
 /**
  * 打印目标格式串的内容
