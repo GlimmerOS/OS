@@ -14,6 +14,7 @@ static char* string = 0; // the string need to print
 static char* buffer = 0; // out buffer
 
 static int ret = 0; // the return value of print function
+static size_t out_size = -1; // the number of characters been out
 
 /**
  * 输出一个字符到指定目标上
@@ -23,6 +24,12 @@ static int ret = 0; // the return value of print function
  * @return 无返回
  */
 static void output(int ch) {
+  if (out_size == 0) {
+    return;
+  }
+
+  out_size--;
+
   if (out_target == 0) {
     sbi_console_putchar(ch);
   } else {
@@ -85,7 +92,6 @@ static void print_string() {
 int printf(const char *format, ...) {
   ret = 0;
   out_target = 0;
-  buffer = 0;
   
   va_list ap;
   va_start(ap, format);
@@ -93,7 +99,7 @@ int printf(const char *format, ...) {
   va_end(ap) ;
   
   out_target = 0;
-  buffer = 0;
+  out_size = -1;
 
   return ret;
 }
@@ -107,6 +113,13 @@ int printf(const char *format, ...) {
  * @return int 返回成功打印的参数个数
  */
 int vprintf(const char *format, va_list ap) {
+  ret = 0;
+  out_target = 0;
+
+
+  out_target = 0;
+  out_size = -1;
+
   return ret;
 }
 
@@ -131,6 +144,8 @@ int vsprintf(char *out, const char *format, va_list ap) {
   buffer = 0;
   out_target = 0;
 
+  out_size = -1;
+
   return ret;
 }
 
@@ -144,11 +159,17 @@ int vsprintf(char *out, const char *format, va_list ap) {
  */
 int sprintf(char *out, const char *format, ...) {
   ret = 0;
+  out_target = 1;
+  buffer = out;
 
   va_list ap;
   va_start(ap, format);
   ret = vsprintf(out, format, ap);
   va_end(ap) ;
+
+  out_target = 0;
+  buffer = 0;
+  out_size = -1;
   
   return ret;
 }
@@ -163,6 +184,24 @@ int sprintf(char *out, const char *format, ...) {
  * @return int 返回成功打印的参数个数
  */
 int snprintf(char *out, size_t n, const char *format, ...) {
+  if (n == 0) {
+    return 0;
+  }
+
+  ret = 0;
+  out_target = 1;
+  buffer = out;
+  out_size = n - 1;
+
+  va_list ap;
+  va_start(ap, format);
+  ret = vsprintf(out, format, ap);
+  va_end(ap) ;
+
+  out_target = 0;
+  buffer = 0;
+  out_size = -1;
+
   return 0;
 }
 
@@ -177,6 +216,21 @@ int snprintf(char *out, size_t n, const char *format, ...) {
  * @return int 返回成功打印的参数个数
  */
 int vsnprintf(char *out, size_t n, const char *format, va_list ap) {
+  if (n == 0) {
+    return 0;
+  }
+
+  ret = 0;
+  out_target = 1;
+  buffer = out;
+  out_size = n - 1;
+
+  ret = vsprintf(out, format, ap);
+
+  out_target = 0;
+  buffer = 0;
+  out_size = -1;
+
   return 0;
 }
 
@@ -188,7 +242,11 @@ int vsnprintf(char *out, size_t n, const char *format, va_list ap) {
  * @return int 返回该字符
  */
 int putchar(int ch) {
+  out_target = 0;
   output(ch);
+  out_target = 0;
+
+  out_size = -1;
   return ch;
 }
 
