@@ -15,6 +15,13 @@ static char* buffer = 0; // out buffer
 
 static int ret = 0; // the return value of print function
 
+/**
+ * 输出一个字符到指定目标上
+ *
+ * @param ch 需要输出的字符
+ *
+ * @return 无返回
+ */
 static void output(int ch) {
   if (out_target == 0) {
     sbi_console_putchar(ch);
@@ -24,8 +31,12 @@ static void output(int ch) {
   }
 }
 
+/**
+ * 打印数字
+ *
+ * @return 无返回
+ */
 static void printf_num() {
-  ret++;
   char buf[30];
   int i = 0;
 
@@ -52,29 +63,62 @@ static void printf_num() {
   }
 }
 
+/**
+ * 打印字符串
+ *
+ * @return 无返回
+ */
 static void print_string() {
-  ret++;
   while (*string) {
     output(*string);
     string++;
   }
 }
 
+/**
+ * 打印目标格式串的内容
+ *
+ * @param format 目标串的格式串
+ *
+ * @return int 返回成功打印的参数个数
+ */
 int printf(const char *format, ...) {
   ret = 0;
-
+  out_target = 0;
+  buffer = 0;
+  
   va_list ap;
   va_start(ap, format);
   ret = vprintf(format, ap);
   va_end(ap) ;
   
+  out_target = 0;
+  buffer = 0;
+
   return ret;
 }
 
+/**
+ * 打印目标格式串的内容
+ *
+ * @param format 目标串的格式串
+ * @param ap 参数列表
+ *
+ * @return int 返回成功打印的参数个数
+ */
 int vprintf(const char *format, va_list ap) {
   return ret;
 }
 
+/**
+ * 打印目标格式串的内容到指定串上
+ *
+ * @param out 指定的目标串
+ * @param format 目标串的格式串
+ * @param ap 参数列表
+ *
+ * @return int 返回成功打印的参数个数
+ */
 int vsprintf(char *out, const char *format, va_list ap) {
   ret = 0;
 
@@ -90,6 +134,14 @@ int vsprintf(char *out, const char *format, va_list ap) {
   return ret;
 }
 
+/**
+ * 打印目标格式串的内容到指定串上
+ *
+ * @param out 指定的目标串
+ * @param format 目标串的格式串
+ *
+ * @return int 返回成功打印的参数个数
+ */
 int sprintf(char *out, const char *format, ...) {
   ret = 0;
 
@@ -101,14 +153,40 @@ int sprintf(char *out, const char *format, ...) {
   return ret;
 }
 
+/**
+ * 打印目标格式串的内容到指定串上
+ *
+ * @param out 指定的目标串
+ * @param n 需要打印的长度
+ * @param format 目标串的格式串
+ *
+ * @return int 返回成功打印的参数个数
+ */
 int snprintf(char *out, size_t n, const char *format, ...) {
   return 0;
 }
 
+/**
+ * 打印目标格式串的内容到指定串上
+ *
+ * @param out 指定的目标串
+ * @param n 需要打印的长度
+ * @param format 目标串的格式串
+ * @param ap 参数列表
+ *
+ * @return int 返回成功打印的参数个数
+ */
 int vsnprintf(char *out, size_t n, const char *format, va_list ap) {
   return 0;
 }
 
+/**
+ * 打印一个字符
+ *
+ * @param ch 需要打印的字符
+ *
+ * @return int 返回该字符
+ */
 int putchar(int ch) {
   output(ch);
   return ch;
@@ -116,6 +194,8 @@ int putchar(int ch) {
 
 /**
  * 打印LOGO
+ *
+ * @return 无返回
  */
 void print_logo(void) {
   putchar('\n');
