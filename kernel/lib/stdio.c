@@ -82,6 +82,28 @@ static void print_string() {
   }
 }
 
+enum {
+  T_D,
+  T_LD,
+  T_S,
+  T_X,
+  T_LX,
+  T_C,
+  T_PER,
+};
+
+char *type[] = {
+  [T_D] = "d",
+  [T_LD] = "ld",
+  [T_S] = "s",
+  [T_X] = "x",
+  [T_LX] = "lx",
+  [T_C] = "c",
+  [T_PER] = "%",
+};
+
+#define NR_TYPE ARRLEN(type)
+
 /**
  * 打印目标格式串的内容
  *
@@ -98,7 +120,6 @@ int printf(const char *format, ...) {
   ret = vprintf(format, ap);
   va_end(ap) ;
   
-  out_target = 0;
   out_size = -1;
 
   return ret;
@@ -117,7 +138,6 @@ int vprintf(const char *format, va_list ap) {
   out_target = 0;
 
 
-  out_target = 0;
   out_size = -1;
 
   return ret;
@@ -141,8 +161,6 @@ int vsprintf(char *out, const char *format, va_list ap) {
   vprintf(format, ap);
 
   *buffer = '\0';
-  buffer = 0;
-  out_target = 0;
 
   out_size = -1;
 
@@ -167,8 +185,6 @@ int sprintf(char *out, const char *format, ...) {
   ret = vsprintf(out, format, ap);
   va_end(ap) ;
 
-  out_target = 0;
-  buffer = 0;
   out_size = -1;
   
   return ret;
@@ -198,8 +214,6 @@ int snprintf(char *out, size_t n, const char *format, ...) {
   ret = vsprintf(out, format, ap);
   va_end(ap) ;
 
-  out_target = 0;
-  buffer = 0;
   out_size = -1;
 
   return 0;
@@ -227,8 +241,6 @@ int vsnprintf(char *out, size_t n, const char *format, va_list ap) {
 
   ret = vsprintf(out, format, ap);
 
-  out_target = 0;
-  buffer = 0;
   out_size = -1;
 
   return 0;
@@ -244,7 +256,6 @@ int vsnprintf(char *out, size_t n, const char *format, va_list ap) {
 int putchar(int ch) {
   out_target = 0;
   output(ch);
-  out_target = 0;
 
   out_size = -1;
   return ch;
