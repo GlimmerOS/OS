@@ -14,5 +14,6 @@ int vsprintf(char *str, const char *format, va_list ap);
 int vsnprintf(char *str, size_t size, const char *format, va_list ap);
 
 void print_logo();
+void print_init();
 
 #endif

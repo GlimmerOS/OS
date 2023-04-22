@@ -2,6 +2,7 @@
 #include "stdint.h"
 #include "lib/string.h"
 #include "common.h"
+#include "lock/spinlock.h"
 
 static char digits[] = "0123456789abcdef";
 static int out_target = 0; // 0 is stdout, 1 is buffer
@@ -15,6 +16,8 @@ static char* buffer = 0; // out buffer
 
 static int ret = 0; // the return value of print function
 static size_t out_size = -1; // the number of characters been out
+
+static struct spinlock print_lock;
 
 /**
  * 输出一个字符到指定目标上
@@ -162,11 +165,11 @@ static int vprintf(const char *format, va_list ap) {
 
       switch (type) {
         case T_PER:
-          putchar('%');
+          output('%');
           break;
         case T_C:
           number = va_arg(ap, int);
-          putchar(number);
+          output(number);
           break;
         case T_S:
           string = va_arg(ap, char*);
@@ -215,6 +218,8 @@ static int vprintf(const char *format, va_list ap) {
  * @return int 返回成功打印的参数个数
  */
 int printf(const char *format, ...) {
+  acquire(&print_lock);
+
   ret = 0;
   out_target = 0;
   
@@ -224,6 +229,8 @@ int printf(const char *format, ...) {
   va_end(ap) ;
   
   out_size = -1;
+
+  release(&print_lock);
 
   return ret;
 }
@@ -238,6 +245,8 @@ int printf(const char *format, ...) {
  * @return int 返回成功打印的参数个数
  */
 int vsprintf(char *out, const char *format, va_list ap) {
+  acquire(&print_lock);
+
   ret = 0;
 
   out_target = 1;
@@ -248,6 +257,8 @@ int vsprintf(char *out, const char *format, va_list ap) {
   *buffer = '\0';
 
   out_size = -1;
+
+  release(&print_lock);
 
   return ret;
 }
@@ -261,7 +272,10 @@ int vsprintf(char *out, const char *format, va_list ap) {
  * @return int 返回成功打印的参数个数
  */
 int sprintf(char *out, const char *format, ...) {
+  acquire(&print_lock);
+
   ret = 0;
+
   out_target = 1;
   buffer = out;
 
@@ -272,6 +286,8 @@ int sprintf(char *out, const char *format, ...) {
 
   out_size = -1;
   
+  release(&print_lock);
+
   return ret;
 }
 
@@ -289,7 +305,10 @@ int snprintf(char *out, size_t n, const char *format, ...) {
     return 0;
   }
 
+  acquire(&print_lock);
+
   ret = 0;
+
   out_target = 1;
   buffer = out;
   out_size = n - 1;
@@ -301,7 +320,9 @@ int snprintf(char *out, size_t n, const char *format, ...) {
 
   out_size = -1;
 
-  return 0;
+  release(&print_lock);
+
+  return ret;
 }
 
 /**
@@ -319,7 +340,10 @@ int vsnprintf(char *out, size_t n, const char *format, va_list ap) {
     return 0;
   }
 
+  acquire(&print_lock);
+
   ret = 0;
+
   out_target = 1;
   buffer = out;
   out_size = n - 1;
@@ -328,7 +352,9 @@ int vsnprintf(char *out, size_t n, const char *format, va_list ap) {
 
   out_size = -1;
 
-  return 0;
+  release(&print_lock);
+
+  return ret;
 }
 
 /**
@@ -352,11 +378,19 @@ int putchar(int ch) {
  * @return 无返回
  */
 void print_logo(void) {
-  putchar('\n');
   printf("\
        ______   __   _                                  ____  _____\n\
       / ____/  / /  (_)___ ___  ____ ___  ___  _____   / __ \\/ ___/ \n\
      / / __   / /  / / __ `__ \\/ __ `__ \\/ _ \\/ ___/  / / / /\\__ \\ \n\
     / /_/ /  / /  / / / / / / / / / / / /  __/ /     / /_/ /___/ /  \n\
     \\____/  /_/  /_/_/ /_/ /_/_/ /_/ /_/\\___/_/      \\____//____/  \n\n");
+}
+
+/**
+ * 初始化打印功能
+ *
+ * @return void 无返回
+ */
+void print_init() {
+  init_lock(&print_lock, "print");
 }

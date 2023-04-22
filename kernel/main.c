@@ -37,9 +37,10 @@ void main() {
 
   int hartid = read_mhartid();
   if (hartid == 0) {
-    print_logo();
+    Log("Starting GlimmerOS...");
 
-    Log("Starting GlimmerOS");
+    print_init();
+    print_logo();
     
     physic_memory_init();
     kernel_pagetable_init();
