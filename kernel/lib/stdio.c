@@ -140,32 +140,11 @@ static void num_print_env(int type) {
  * 打印目标格式串的内容
  *
  * @param format 目标串的格式串
- *
- * @return int 返回成功打印的参数个数
- */
-int printf(const char *format, ...) {
-  ret = 0;
-  out_target = 0;
-  
-  va_list ap;
-  va_start(ap, format);
-  ret = vprintf(format, ap);
-  va_end(ap) ;
-  
-  out_size = -1;
-
-  return ret;
-}
-
-/**
- * 打印目标格式串的内容
- *
- * @param format 目标串的格式串
  * @param ap 参数列表
  *
  * @return int 返回成功打印的参数个数
  */
-int vprintf(const char *format, va_list ap) {
+static int vprintf(const char *format, va_list ap) {
   ret = 0;
   out_target = 0;
 
@@ -229,6 +208,27 @@ int vprintf(const char *format, va_list ap) {
 }
 
 /**
+ * 打印目标格式串的内容
+ *
+ * @param format 目标串的格式串
+ *
+ * @return int 返回成功打印的参数个数
+ */
+int printf(const char *format, ...) {
+  ret = 0;
+  out_target = 0;
+  
+  va_list ap;
+  va_start(ap, format);
+  ret = vprintf(format, ap);
+  va_end(ap) ;
+  
+  out_size = -1;
+
+  return ret;
+}
+
+/**
  * 打印目标格式串的内容到指定串上
  *
  * @param out 指定的目标串
@@ -267,7 +267,7 @@ int sprintf(char *out, const char *format, ...) {
 
   va_list ap;
   va_start(ap, format);
-  ret = vsprintf(out, format, ap);
+  ret = vprintf(format, ap);
   va_end(ap) ;
 
   out_size = -1;
@@ -296,7 +296,7 @@ int snprintf(char *out, size_t n, const char *format, ...) {
 
   va_list ap;
   va_start(ap, format);
-  ret = vsprintf(out, format, ap);
+  ret = vprintf(format, ap);
   va_end(ap) ;
 
   out_size = -1;
@@ -324,7 +324,7 @@ int vsnprintf(char *out, size_t n, const char *format, va_list ap) {
   buffer = out;
   out_size = n - 1;
 
-  ret = vsprintf(out, format, ap);
+  ret = vprintf(format, ap);
 
   out_size = -1;
 
