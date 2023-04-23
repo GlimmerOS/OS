@@ -7,7 +7,7 @@ int test = 1;
 //读取当前硬件线程的id，即hartid，并返回
 int cpuid()
 {
-  return read_mhartid();
+  return READ_GRR(tp);
 }
 
 //返回当前cpu（即hart）的引用

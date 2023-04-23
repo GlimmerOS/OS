@@ -49,11 +49,7 @@
 #define Sv39 (8ull << 60)
 #define SET_SATP(addr) (Sv39 | (addr >> 12))
 
-static inline uint64_t
-read_mhartid()
-{
-  return READ_GRR(tp);
-}
+
 
 /*
 * intr_get、intr_off和intr_on都只对sstatus中的SIE位操作

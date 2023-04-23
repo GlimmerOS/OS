@@ -35,7 +35,7 @@ static void env_init() {
 void main() {
   env_init();
 
-  int hartid = read_mhartid();
+  int hartid = READ_GRR(tp);
   if (hartid == 0) {
     Log("Starting GlimmerOS...");
 
