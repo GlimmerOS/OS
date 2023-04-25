@@ -101,7 +101,8 @@ userret:
   .endr
 
 	# restore user a0
-  ld a0, 112(a0)
+  LOAD_N 10
   
   # return to user mode and user pc.
   # usertrapret() set up sstatus and sepc.
+  sret

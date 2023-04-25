@@ -148,6 +148,7 @@ void processPgtableAlloc(struct Process *process) {
 // }
 
 void yield(void) {
+  Log("yield");
   struct Process *process = myProcess();
   acquire(&process->lock);
   process->state = READY;

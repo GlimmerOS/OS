@@ -17,5 +17,6 @@
 
 void kernelvec();
 void kernel_trap_init();
+void timer_handler();
 
 #endif

@@ -24,6 +24,11 @@ static void set_next_timer() {
   sbi_set_timer(read_time() + INTERRUPT_TIME);
 }
 
+void timer_handler() {
+  Log("Timer Interrupt!");
+  set_next_timer();
+}
+
 /**
  * initialize kernel_trap
  *
@@ -34,7 +39,9 @@ void kernel_trap_init() {
   WRITE_CSR(s, tvec, (uint64_t)kernelvec);
   Log("Finish set stvec");
   
+  Log("Set timer interrupt");
   set_next_timer();
+  Log("Finish timer interrupt");
 }
 
 /**
@@ -44,17 +51,26 @@ void kernel_trap_init() {
  */
 void kernel_trap_handler() {
   Assert(GET_BIT(READ_CSR(s, status), SSTATUS_SPP) == 0x1, "Trap not from kernel!");
+  Assert(intr_get() == 0, "kernel trap interrupt is enabled!");
 
   uint64_t scause = READ_CSR(s, cause);
+  uint64_t sstatus = READ_CSR(s, status);
+  uint64_t sepc = READ_CSR(s, epc);
 
   if (GET_INTERRUPT(scause)) {
-    // kernel interrupt
+    // an interrupt
 
     uint64_t exception = GET_EXCEPTION(scause);
 
     if (exception == STI) {
-      Log("Timer Interrupt!");
-      set_next_timer();
+      timer_handler();
+
+      if (myProcess() != NULL && myProcess()->state == RUNNING) {
+        yield();
+      }
     }
   }
+
+  WRITE_CSR(s, status, sstatus);
+  WRITE_CSR(s, epc , sepc);
 }
