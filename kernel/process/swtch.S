@@ -1,7 +1,7 @@
 # Context switch
 # 
 # Save current registers in old. Load from new.	
-#define regaddr(x) a0 + x * 4
+
 .globl swtch
 swtch:
         sd ra, 40(a0)
