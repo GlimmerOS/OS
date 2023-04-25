@@ -49,35 +49,4 @@
 #define Sv39 (8ull << 60)
 #define SET_SATP(addr) (Sv39 | (addr >> 12))
 
-
-
-/*
-* intr_get、intr_off和intr_on都只对sstatus中的SIE位操作
-* intr_get就是获取是否禁止中断，1为开启中断 0为禁止中断
-*/
-static inline int
-intr_get()
-{
-  uint64_t x = READ_CSR(s, status);
-  return (x & SSTATUS_SIE) != 0;
-}
-
-/*
-* intr_off 将 SIE位 置为禁止中断(0)
-*/
-static inline void
-intr_off()
-{
-  WRITE_CSR(s, status, READ_CSR(s, status) & ~SSTATUS_SIE);
-}
-
-/*
-* intr_on 将 SIE位 置为开启中断(1)
-*/
-static inline void
-intr_on()
-{
-  WRITE_CSR(s, status, READ_CSR(s, status) | SSTATUS_SIE);
-}
-
 #endif
