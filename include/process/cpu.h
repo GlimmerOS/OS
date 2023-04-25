@@ -39,11 +39,10 @@ struct Trapframe {
   uint64_t t4;
   uint64_t t5;
   uint64_t t6;
-  uint64_t kernelSatp;
-  uint64_t kernelSp;
-  uint64_t trapHandler;
-  uint64_t epc;
-  uint64_t kernelHartId;
+  uint64_t kernelSatp;   // 32
+  uint64_t kernelSp;     // 33
+  uint64_t epc;          // 34
+  uint64_t kernelHartId; // 35
 };
 
 struct cpu {
