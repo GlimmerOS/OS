@@ -1,3 +1,4 @@
+.altmacro
 .equ TRAPFRAME, 0x8000000000 - 0x1000
 
 .section trap_section
