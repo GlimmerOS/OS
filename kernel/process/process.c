@@ -41,7 +41,6 @@ void processesInit() {
     init_lock(&process->lock, "process_each");
     process->state = UNUSED;
     process->stack_inKenl = Process_Stack(process - PCB.process);
-    // here Process_Stack is not allocated,need memory in kernel
   }
 
   mycpu()->trapframe->ra = (uint64_t)scheduler;

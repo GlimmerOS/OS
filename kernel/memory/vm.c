@@ -115,6 +115,16 @@ void kernel_pagetable_init() {
   // map trampoline
   va_map_pa(kernel_pagetable, TRAMPOLINE, (addr_t)trampoline, MPTE_FLAG(R) | MPTE_FLAG(X));
 
+  for (int i = 0; i < PCB_NUM; ++i) {
+    uint64_t pa = (uint64_t)alloc_physic_page();
+    Assert(pa != 0, "alloc process stack page failed!");
+
+    uint64_t va = Process_Stack(i);
+    
+    int ret = va_map_pa(kernel_pagetable, va, pa, MPTE_FLAG(R) | MPTE_FLAG(W));
+    Assert(ret != 0, "map process stack page failed!");
+  }
+
   Log("Initialized kernel pagetable");
 
   Log("Set satp for main hart");
