@@ -1,5 +1,6 @@
-.section .text
+.section entry_section, "ax"
 .global _entry
+.type _entry, @function
 _entry:
   la sp, boot_stack
   lui t0, 0x1

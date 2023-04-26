@@ -2,10 +2,13 @@
 *
 !*/
 !Makefile
-!.clangd
 !.gitignore
 !README.md
 !*.[chS]
 !*.cpp
 !*.cc
 !.gdbinit
+documents
+build
+!Doxyfile
+!docs.sh

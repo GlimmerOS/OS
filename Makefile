@@ -1,5 +1,6 @@
 # Workspace
 WORKDIR = $(abspath .)
+BUILDDIR = $(WORKDIR)/build
 
 # Try to infer the correct TOOLPREFIX if not set
 ifndef TOOLPREFIX
@@ -14,9 +15,10 @@ TOOLPREFIX := $(shell if riscv64-unknown-elf-objdump -i 2>&1 | grep 'elf64-big' 
 	echo "*** To turn off this error, run 'gmake TOOLPREFIX= ...'." 1>&2; \
 	echo "***" 1>&2; exit 1; fi)
 endif
+
 # Then get the tools' name
 CC = $(TOOLPREFIX)gcc
-AS = $(TOOLPREFIX)gas
+AS = $(TOOLPREFIX)gcc
 LD = $(TOOLPREFIX)ld
 OBJCOPY = $(TOOLPREFIX)objcopy
 OBJDUMP = $(TOOLPREFIX)objdump
@@ -38,26 +40,37 @@ QEMUFLAGS = -machine $(MACHINE) \
 						-nographic
 
 # C compile options
-CFLAGS = -Wall -Werror -ggdb \
+CFLAGS = -Wall -Werror -ggdb3 \
 				 -MD \
-				 -ffreestanding -fno-common -nostdlib -mno-relax
+				 -ffreestanding -fno-common -nostdlib -mno-relax -mcmodel=medany
 INCLUDEPATH = $(WORKDIR)/include
-CFLAGS += $(addprefix -I, $(INCLUDEPATH))
+INCLUDEFLAG =  $(addprefix -I, $(INCLUDEPATH))
+CFLAGS += $(INCLUDEFLAG)
+ASFLAGS += -MD $(INCLUDEFLAG)
 
 # kernel info
-KERNELENTRY = entry
+KERNELSRC = $(shell find $(K) -name "*.c")
+KERNELASM = $(shell find $(K) -name "*.S")
+KERNELOBJ = $(subst $(WORKDIR), $(BUILDDIR), $(KERNELSRC:%.c=%.o))
+KERNELOBJ += $(subst $(WORKDIR), $(BUILDDIR), $(KERNELASM:%.S=%.o))
+-include $(subst $(WORKDIR), $(BUILDDIR), $(KERNELSRC:%.c:%.d))
 
-KERNELSRC = $(shell find $(WORKDIR)/kernel -name "*.c")
-KERNELOBJ = $(K)/$(KERNELENTRY).o
-KERNELOBJ += $(KERNELSRC:%.c=%.o)
--include $(KERNELSRC:%.c:%.d)
-KERNELBIN = $(K)/kernel
+KERNELBIN = $(BUILDDIR)/kernel.bin
 KERNELLD = $(K)/kernel.ld
 
 # user info
-USERSRC = $(shell find $(WORKDIR)/user -name "*.c")
-USEROBJ = $(USERSRC:%.c=%.o)
--include $(USERSRC:%.c:%.d)
+USERSRC = $(shell find $(U) -name "*.c")
+USEROBJ = $(subst $(WORKDIR), $(BUILDDIR), $(USERSRC:%.c=%.o))
+-include $(subst $(WORKDIR), $(BUILDDIR), $(USERSRC:%.c:%.d))
+
+# compile rules
+$(BUILDDIR)/%.o: $(WORKDIR)/%.c
+	@mkdir -p $(dir $@) && echo + CC $<
+	@$(CC) $(CFLAGS) -c -o $@ $<
+
+$(BUILDDIR)/%.o: $(WORKDIR)/%.S
+	@mkdir -p $(dir $@) && echo + AS $<
+	@$(AS) $(ASFLAGS) -c -o $@ $<
 
 # build kernel
 $(KERNELBIN): $(KERNELOBJ) $(KERNELLD)
@@ -74,11 +87,14 @@ QEMUGDBFLAGS = -S -gdb \
 # run debug
 gdb: $(KERNELBIN)
 	@grep -E "set auto-load safe-path /" ~/.gdbinit || echo "set auto-load safe-path /" >> ~/.gdbinit
-	@echo "**********Start riscv64-unknown-linux-gnu-gdb on another window"
-	$(QEMU) $(QEMUFLAGS) -kernel $(KERNELBIN) $(QEMUGDBFLAGS) 
+	@echo "**********Start riscv64-unknown-linux-gnu-gdb on another window********************"
+	@$(QEMU) $(QEMUFLAGS) -kernel $(KERNELBIN) $(QEMUGDBFLAGS) 
+
+docs: clean
+	./docs.sh
 
 # clean project not needed files
 clean:
-	rm -f $(KERNELOBJ) $(USEROBJ) $(KERNELOBJ:%.o=%.d) $(USEROBJ:%.o:%.d) $(KERNELBIN)
+	rm -rf $(BUILDDIR)
 
-.PHONY: clean run gdb
+.PHONY: clean run gdb docs
