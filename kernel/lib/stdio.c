@@ -149,7 +149,6 @@ static void num_print_env(int type) {
  */
 static int vprintf(const char *format, va_list ap) {
   ret = 0;
-  out_target = 0;
 
   while (*format) {
     if (*format == '%') {
@@ -220,7 +219,6 @@ static int vprintf(const char *format, va_list ap) {
 int printf(const char *format, ...) {
   acquire(&print_lock);
 
-  ret = 0;
   out_target = 0;
   
   va_list ap;
@@ -247,15 +245,12 @@ int printf(const char *format, ...) {
 int vsprintf(char *out, const char *format, va_list ap) {
   acquire(&print_lock);
 
-  ret = 0;
-
   out_target = 1;
   buffer = out;
 
   vprintf(format, ap);
 
   *buffer = '\0';
-
   out_size = -1;
 
   release(&print_lock);
@@ -274,8 +269,6 @@ int vsprintf(char *out, const char *format, va_list ap) {
 int sprintf(char *out, const char *format, ...) {
   acquire(&print_lock);
 
-  ret = 0;
-
   out_target = 1;
   buffer = out;
 
@@ -284,6 +277,7 @@ int sprintf(char *out, const char *format, ...) {
   ret = vprintf(format, ap);
   va_end(ap) ;
 
+  *buffer = '\0';
   out_size = -1;
   
   release(&print_lock);
@@ -307,8 +301,6 @@ int snprintf(char *out, size_t n, const char *format, ...) {
 
   acquire(&print_lock);
 
-  ret = 0;
-
   out_target = 1;
   buffer = out;
   out_size = n - 1;
@@ -318,6 +310,7 @@ int snprintf(char *out, size_t n, const char *format, ...) {
   ret = vprintf(format, ap);
   va_end(ap) ;
 
+  *buffer = '\0';
   out_size = -1;
 
   release(&print_lock);
@@ -342,14 +335,13 @@ int vsnprintf(char *out, size_t n, const char *format, va_list ap) {
 
   acquire(&print_lock);
 
-  ret = 0;
-
   out_target = 1;
   buffer = out;
   out_size = n - 1;
 
   ret = vprintf(format, ap);
 
+  *buffer = '\0';
   out_size = -1;
 
   release(&print_lock);
