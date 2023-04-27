@@ -201,7 +201,7 @@ static int vprintf(const char *format, va_list ap) {
       }
     }
 
-    putchar(*format);
+    output(*format);
     format++;
   }
 
