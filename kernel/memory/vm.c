@@ -133,3 +133,30 @@ void kernel_pagetable_init() {
   FENCE_VMA;
   Log("Finish set satp");
 }
+
+/*
+ * 释放页表操作
+ * 如果下一级是一个有效页表，则去遍历这个页表进行释放
+ *
+ * @param pagetable 页表起始地址
+ *
+ * @return 无返回
+ */
+void free_pagetable(pagetable_t pagetable) {
+   for (int i = 0; i < NR_PTE; ++i) {
+     pte_t pte = pagetable[i];
+
+     if (IS_LEAF(pte)) {
+       // is a leaf pte and will get a not pagetable block
+       continue;
+     }
+    
+     if (GPTE_FLAG(pte, V)) {
+       // not a leaf but is valid
+       free_pagetable((pagetable_t)PTE2PA(pte));
+       pagetable[i] = 0;
+     }
+   }
+
+   free_physic_page(pagetable);
+}

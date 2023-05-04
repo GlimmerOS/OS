@@ -71,7 +71,7 @@ void free_physic_page(void* addr) {
   Assert(addr >= (void*)end && (uint64_t)addr < PHYSIC_MEM_TOP, "Invalid page address to be freed!");
   Assert((uint64_t)addr == PAGE_START((uint64_t)addr), "The page to be freed is not aligned!");
 
-  memset(addr, 0xff, PAGE_SIZE);
+  memset(addr, 0xcd, PAGE_SIZE);
   struct pPage *page = addr;
 
   acquire(&pPage_list_lock);
