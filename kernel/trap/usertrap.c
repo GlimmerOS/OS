@@ -1,7 +1,7 @@
 #include "kernel.h"
 #include "common.h"
 #include "debug.h"
-
+#include "syscall/syscall.h"
 /**
  * handle user trap
  *
@@ -9,7 +9,7 @@
  */
 void user_trap_handler() {
   Assert(GET_BIT(READ_CSR(s, status), SSTATUS_SPP) == 0x0, "Trap not from user!");
-
+Log("111");
   WRITE_CSR(s, tvec, (uint64_t)kernelvec);
 
   struct Process* myproc = myProcess();
@@ -26,6 +26,17 @@ void user_trap_handler() {
     }
   } else {
     // not an interrupt
+    if(GET_EXCEPTION(scause)==SSC)
+    {
+        if(killed(myproc))
+        {
+          exit(-1);
+        }
+          myproc->trapframe->epc+=4;
+          intr_on();
+          Log("1111");
+          syscall();
+    }
   }
 
 

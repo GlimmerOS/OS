@@ -44,9 +44,11 @@ void main() {
     
     physic_memory_init();
     kernel_pagetable_init();
-
+    processesInit();
     kernel_trap_init();
+    userinit();
   } else {
     while (1) {};
   }
+  scheduler();
 }

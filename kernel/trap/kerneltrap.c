@@ -25,7 +25,7 @@ static void set_next_timer() {
 }
 
 void timer_handler() {
-  Log("Timer Interrupt!");
+  // Log("Timer Interrupt!");
   set_next_timer();
 }
 

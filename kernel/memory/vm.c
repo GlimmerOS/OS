@@ -1,6 +1,6 @@
 #include "kernel.h"
 #include "debug.h"
-
+#include "lib/string.h"
 /// 内核页表
 static pagetable_t kernel_pagetable;
 /// 内核代码结束位置
@@ -132,4 +132,84 @@ void kernel_pagetable_init() {
   WRITE_CSR(s, atp, SET_SATP((uint64_t)kernel_pagetable));
   FENCE_VMA;
   Log("Finish set satp");
+}
+
+/*
+ * 释放页表操作
+ * 如果下一级是一个有效页表，则去遍历这个页表进行释放
+ *
+ * @param pagetable 页表起始地址
+ *
+ * @return 无返回
+ */
+void free_pagetable(pagetable_t pagetable) {
+   for (int i = 0; i < NR_PTE; ++i) {
+     pte_t pte = pagetable[i];
+
+     if (IS_LEAF(pte)) {
+       // is a leaf pte and will get a not pagetable block
+       continue;
+     }
+    
+     if (GPTE_FLAG(pte, V)) {
+       // not a leaf but is valid
+       free_pagetable((pagetable_t)PTE2PA(pte));
+       pagetable[i] = 0;
+     }
+   }
+
+   free_physic_page(pagetable);
+}
+void userFstCodeLoad(pagetable_t pagetable, uint8_t *src, uint32_t sz)
+{
+  char *mem;
+   mem = alloc_physic_page();
+  memset(mem, 0, PAGE_SIZE);
+  va_map_pa(pagetable, 0, (uint64_t)mem, MPTE_FLAG(W)|MPTE_FLAG(R)|MPTE_FLAG(X)|MPTE_FLAG(U));
+  memmove(mem,src, sz);
+}
+int
+copy_in_str_u2k(pagetable_t pagetable, char *dst, uint64_t srcva, uint64_t max)
+{
+  uint64_t n, va0, pa0;
+  int got_null = 0;
+
+  while(got_null == 0 && max > 0){
+    va0 = PAGE_START(srcva);
+    //
+     for (int i = 2; i > 0; --i) {
+    pte_t *pte = &pagetable[VA_VPN(srcva, i)];
+    pagetable = (pagetable_t)PTE2PA(*pte);
+  }
+  pte_t *pte =&pagetable[VA_VPN(srcva,0)];
+      pa0=PTE2PA(*pte);
+    //
+    if(pa0 == 0)
+      return -1;
+    n = PAGE_SIZE - (srcva - va0);
+    if(n > max)
+      n = max;
+
+    char *p = (char *) (pa0 + (srcva - va0));
+    while(n > 0){
+      if(*p == '\0'){
+        *dst = '\0';
+        got_null = 1;
+        break;
+      } else {
+        *dst = *p;
+      }
+      --n;
+      --max;
+      p++;
+      dst++;
+    }
+
+    srcva = va0 + PAGE_SIZE;
+  }
+  if(got_null){
+    return 0;
+  } else {
+    return -1;
+  }
 }

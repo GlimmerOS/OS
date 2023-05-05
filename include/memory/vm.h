@@ -22,6 +22,8 @@
 // PTE
 /// 获取PTE中的物理页面起始地址
 #define PTE_PPN(x) BITS(x, 53, 10)
+/// The number of PTE in a page
+#define NR_PTE 512
 
 #define _F 9
 #define _C 8
@@ -47,11 +49,16 @@
 /// 截取PTE中的PPN并转化为PA
 #define PTE2PA(x) (PTE_PPN(x) << 12)
 
+#define IS_LEAF(x) (BITS(x, 9, 1) != 0 && GPTE_FLAG(x, V))
+
 typedef uint64_t *pagetable_t;
 typedef uint64_t pte_t;
 
 word_t va_map_pa(pagetable_t pagetable, addr_t va, addr_t pa, addr_t flags);
 word_t va_unmap_pa(pagetable_t pagetable, addr_t va);
 void kernel_pagetable_init();
-
+void free_pagetable(pagetable_t pagetable);
+void userFstCodeLoad(pagetable_t pagetable, uint8_t* src, uint32_t sz);
+int copyinstr(pagetable_t pagetable, char *dst, uint64_t srcva, uint64_t max);
+int copy_in_str_u2k(pagetable_t pagetable, char *dst, uint64_t srcva, uint64_t max);
 #endif

@@ -9,7 +9,7 @@
 #define STI 0x5
 /// supervisor external interrupt
 #define SEI 0x9
-
+#define SSC 0x8
 /// get scause interrupt bit
 #define GET_INTERRUPT(x) GET_BIT(x, 63)
 /// get scause exception code
