@@ -68,9 +68,8 @@ struct Process *allocProcess() {
 }
 
 void processFirstRun() {
-  Log("i'm the first code process run,its uncomplete");
   release(&myProcess()->lock);
-  
+   Log("i'm the first code process run,its uncomplete");
   // here a func to return from kernel to user space is needed.
 }
 
@@ -99,7 +98,6 @@ userinit(void)
   // prepare for the very first "return" from kernel to user.
   process->trapframe->epc = 0;      // user program counter
   process->trapframe->sp = PAGE_SIZE;  // user stack pointer
-
   memcpy(process->name, "initcode", sizeof(process->name));
   // p->cwd = namei("/");
   process->state = READY;
