@@ -23,21 +23,21 @@ void pop_off(void);
  */
 static inline int intr_get() {
   uint64_t x = READ_CSR(s, status);
-  return (x & SSTATUS_SIE) != 0;
+  return (x & (1 << SSTATUS_SIE) ) != 0;
 }
 
 /*
  * intr_off 将 SIE位 置为禁止中断(0)
  */
 static inline void intr_off() {
-  WRITE_CSR(s, status, READ_CSR(s, status) & ~SSTATUS_SIE);
+  WRITE_CSR(s, status, READ_CSR(s, status) & ~(1 << SSTATUS_SIE));
 }
 
 /*
  * intr_on 将 SIE位 置为开启中断(1)
  */
 static inline void intr_on() {
-  WRITE_CSR(s, status, READ_CSR(s, status) | SSTATUS_SIE);
+  WRITE_CSR(s, status, READ_CSR(s, status) | (1 << SSTATUS_SIE));
 }
 
 #endif

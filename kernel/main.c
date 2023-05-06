@@ -38,7 +38,6 @@ void main() {
   int hartid = READ_GRR(tp);
   if (hartid == 0) {
     Log("Starting GlimmerOS...");
-
     print_init();
     print_logo();
     
