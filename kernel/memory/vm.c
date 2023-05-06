@@ -160,7 +160,6 @@ void free_pagetable(pagetable_t pagetable) {
 
    free_physic_page(pagetable);
 }
-<<<<<<< HEAD
 void userFstCodeLoad(pagetable_t pagetable, uint8_t *src, uint32_t sz)
 {
   char *mem;
@@ -214,5 +213,3 @@ copy_in_str_u2k(pagetable_t pagetable, char *dst, uint64_t srcva, uint64_t max)
     return -1;
   }
 }
-=======
->>>>>>> 615b1b113719df4b26066f8eac1eb1a27be135db
