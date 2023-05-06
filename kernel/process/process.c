@@ -102,7 +102,6 @@ userinit(void)
   // p->cwd = namei("/");
   process->state = READY;
   release(&process->lock);
-  WRITE_CSR(s, tvec, (uint64_t)uservec);
   Log("the init user process init finish");
 }
 
