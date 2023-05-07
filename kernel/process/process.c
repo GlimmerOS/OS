@@ -1,7 +1,7 @@
 #include "debug.h"
 #include "kernel.h"
 #include "stdc.h"
-
+#include "trap/usertrap.h"
 static uint32_t pid;
 struct PCB PCB;
 struct spinlock wait_lock;
@@ -68,8 +68,10 @@ struct Process *allocProcess() {
 }
 
 void processFirstRun() {
-  release(&myProcess()->lock);
+  struct Process *process=myProcess();
+  release(&process->lock);
    Log("i'm the first code process run,its uncomplete");
+  usertrapret();
   // here a func to return from kernel to user space is needed.
 }
 

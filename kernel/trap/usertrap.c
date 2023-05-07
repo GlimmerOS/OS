@@ -34,13 +34,14 @@ void user_trap_handler() {
         }
           myproc->trapframe->epc+=4;
           intr_on();
-          Log("1111");
           syscall();
     }
   }
-
-
-  myproc = myProcess();
+      usertrapret();
+}
+void usertrapret()
+{
+  struct Process *myproc = myProcess();
 
   intr_off();
   WRITE_CSR(s, tvec, (uint64_t)uservec);
@@ -59,6 +60,5 @@ void user_trap_handler() {
   WRITE_CSR(s, epc, myproc->trapframe->epc);
 
   uint64_t satp = SET_SATP((uint64_t)myproc->pagetable);
-
   userret(satp);
 }
