@@ -1,8 +1,8 @@
 # Context switch
 # 
 # Save current registers in old. Load from new.	
-
-.globl swtch
+.section .text
+.global swtch
 swtch:
         sd ra, 8(a0)
         sd sp, 16(a0)

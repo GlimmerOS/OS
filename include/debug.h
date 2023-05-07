@@ -14,6 +14,7 @@
   if (!(cond)) { \
     printf(ANSI_FMT("Failed on [%s:%d %s], reason: " format, ANSI_FG_RED) "\n", \
     __FILE__, __LINE__, __func__, ## __VA_ARGS__); \
+    printf(ANSI_FMT("sepc value is :%p",ANSI_FG_RED) "\n",READ_CSR(s,epc));  \
     printf(ANSI_FMT("panic", ANSI_FG_GREEN ANSI_BG_RED) "\n"); \
     for (;;); \
   } \

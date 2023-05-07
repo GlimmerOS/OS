@@ -97,7 +97,7 @@ userinit(void)
 
   // prepare for the very first "return" from kernel to user.
   process->trapframe->epc = 0;      // user program counter
-  process->trapframe->sp = PAGE_SIZE;  // user stack pointer
+  // process->trapframe->sp = PAGE_SIZE;  // user stack pointer
   memcpy(process->name, "initcode", sizeof(process->name));
   // p->cwd = namei("/");
   process->state = READY;
@@ -113,6 +113,7 @@ void scheduler() {
   struct Process *process;
   struct cpu *cpu = mycpu();
     cpu->process=0;
+    intr_on();
   while (1) {
     for (process = PCB.process; process-PCB.process <PCB_NUM; process++) {
       acquire(&process->lock);
