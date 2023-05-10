@@ -1,6 +1,7 @@
 #ifndef _STDIO_H
 #define _STDIO_H
 
+#include <stddef.h>
 #include "lib/legacysbi.h"
 #include <stdarg.h>
 

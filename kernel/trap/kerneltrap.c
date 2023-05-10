@@ -1,4 +1,4 @@
-#include "common.h"
+#include "macro.h"
 #include "kernel.h"
 #include "debug.h"
 #include "lib/legacysbi.h"

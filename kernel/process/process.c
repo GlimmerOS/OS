@@ -1,7 +1,8 @@
 #include "debug.h"
 #include "kernel.h"
-#include "stdc.h"
+#include "macro.h"
 #include "trap/usertrap.h"
+
 static uint32_t pid;
 struct PCB PCB;
 struct spinlock wait_lock;
@@ -17,14 +18,15 @@ void processSetup(struct Process *process) {
 
   Assert(process->pagetable, "processInitFail:pagetable disalloc");
 
-  Assert(process->trapframe = (struct Trapframe *)alloc_physic_page(), "processInitFail:trapFrame disalloc");
+  Assert(process->trapframe = (struct Trapframe *)alloc_physic_page(),
+         "processInitFail:trapFrame disalloc");
 
   memset(process->trapframe, 0, sizeof(struct Trapframe));
   process->trapframe->ra = (uint64_t)processFirstRun;
   process->trapframe->sp = process->stack_inKenl + PAGE_SIZE;
 
   process->chan = 0;
-  process->state = READY;   
+  process->state = READY;
 }
 
 void processesInit() {
@@ -34,16 +36,16 @@ void processesInit() {
   pid = 0;
 
   init_lock(&PCB.lock, "PCBs");
-  init_lock(&wait_lock,"wait_lock");
+  init_lock(&wait_lock, "wait_lock");
   for (process = PCB.process; process < &PCB.process[PCB_NUM]; process++) {
     init_lock(&process->lock, "process_each");
     process->state = UNUSED;
     process->stack_inKenl = Process_Stack(process - PCB.process);
   }
- Log("scheduler loaded in cpu ...");
- mycpu()->trapframe=alloc_physic_page();
+  Log("scheduler loaded in cpu ...");
+  mycpu()->trapframe = alloc_physic_page();
   mycpu()->trapframe->ra = (uint64_t)scheduler;
-  mycpu()->trapframe->kernelSp=Process_Stack(PCB_NUM);
+  mycpu()->trapframe->kernelSp = Process_Stack(PCB_NUM);
   Log("Finish Processes first init ...");
 }
 
@@ -68,37 +70,32 @@ struct Process *allocProcess() {
 }
 
 void processFirstRun() {
-  struct Process *process=myProcess();
+  struct Process *process = myProcess();
   release(&process->lock);
-   Log("i'm the first code process run,its uncomplete");
+  Log("i'm the first code process run,its uncomplete");
   usertrapret();
   // here a func to return from kernel to user space is needed.
 }
 
-uint8_t initcode[] = {
-  0x17, 0x05, 0x00, 0x00, 0x13, 0x05, 0x45, 0x02,
-  0x97, 0x05, 0x00, 0x00, 0x93, 0x85, 0x35, 0x02,
-  0x93, 0x08, 0x70, 0x00, 0x73, 0x00, 0x00, 0x00,
-  0x93, 0x08, 0x20, 0x00, 0x73, 0x00, 0x00, 0x00,
-  0xef, 0xf0, 0x9f, 0xff, 0x2f, 0x69, 0x6e, 0x69,
-  0x74, 0x00, 0x00, 0x24, 0x00, 0x00, 0x00, 0x00,
-  0x00, 0x00, 0x00, 0x00
-};
+uint8_t initcode[] = {0x17, 0x05, 0x00, 0x00, 0x13, 0x05, 0x45, 0x02, 0x97,
+                      0x05, 0x00, 0x00, 0x93, 0x85, 0x35, 0x02, 0x93, 0x08,
+                      0x70, 0x00, 0x73, 0x00, 0x00, 0x00, 0x93, 0x08, 0x20,
+                      0x00, 0x73, 0x00, 0x00, 0x00, 0xef, 0xf0, 0x9f, 0xff,
+                      0x2f, 0x69, 0x6e, 0x69, 0x74, 0x00, 0x00, 0x24, 0x00,
+                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
-void
-userinit(void)
-{
+void userinit(void) {
   Log("the init user process init start");
   struct Process *process;
 
   process = allocProcess();
   initproc = process;
-  
+
   userFstCodeLoad(process->pagetable, initcode, sizeof(initcode));
   // p->sz = PGSIZE;
 
   // prepare for the very first "return" from kernel to user.
-  process->trapframe->epc = 0;      // user program counter
+  process->trapframe->epc = 0; // user program counter
   // process->trapframe->sp = PAGE_SIZE;  // user stack pointer
   memcpy(process->name, "initcode", sizeof(process->name));
   // p->cwd = namei("/");
@@ -107,23 +104,21 @@ userinit(void)
   Log("the init user process init finish");
 }
 
-struct Process *myProcess() {
-  return mycpu()->process;
-}
+struct Process *myProcess() { return mycpu()->process; }
 
 void scheduler() {
   struct Process *process;
   struct cpu *cpu = mycpu();
-    cpu->process=0;
-    intr_on();
+  cpu->process = 0;
+  intr_on();
   while (1) {
-    for (process = PCB.process; process-PCB.process <PCB_NUM; process++) {
+    for (process = PCB.process; process - PCB.process < PCB_NUM; process++) {
       acquire(&process->lock);
       if (process->state == READY) {
         process->state = RUNNING;
         cpu->process = process;
         swtch(cpu->trapframe, process->trapframe);
-        cpu->process=0;
+        cpu->process = 0;
       }
       release(&process->lock);
     }
@@ -168,16 +163,15 @@ void processPgtableAlloc(struct Process *process) {
     Assert(0, "TRAPFRAME map failed");
   }
 }
-static void freeProcess(struct Process *process)
-{
-      if(process->trapframe)
-    free_physic_page((void*)process->trapframe);
-       process->trapframe=0;
-   free_pagetable(process->pagetable);
-    process->chan=0;
-    process->processID=0;
-    process->killed=0;
-    process->state=UNUSED;
+static void freeProcess(struct Process *process) {
+  if (process->trapframe)
+    free_physic_page((void *)process->trapframe);
+  process->trapframe = 0;
+  free_pagetable(process->pagetable);
+  process->chan = 0;
+  process->processID = 0;
+  process->killed = 0;
+  process->state = UNUSED;
 }
 
 void yield(void) {
@@ -248,29 +242,25 @@ int kill(int pid) {
   return -1;
 }
 
-static void
-reparent(struct Process *p)
-{
+static void reparent(struct Process *p) {
   struct Process *pp;
 
-  for(pp = PCB.process; pp < &PCB.process[PCB_NUM]; pp++){
-    if(pp->parent == p){
+  for (pp = PCB.process; pp < &PCB.process[PCB_NUM]; pp++) {
+    if (pp->parent == p) {
       pp->parent = initproc;
     }
-     wakeup(initproc);
+    wakeup(initproc);
   }
 }
 
 // Exit the current process.  Does not return.
 // An exited process remains in the zombie state
 // until its parent calls wait().
-void
-exit(int status)
-{
+void exit(int status) {
   struct Process *p = myProcess();
 
-  if(p == initproc)
-    Assert(0,"init exiting");
+  if (p == initproc)
+    Assert(0, "init exiting");
 
   // Close all open files.
 
@@ -294,7 +284,7 @@ exit(int status)
 
   // Parent might be sleeping in wait().
   wakeup(p->parent);
-  
+
   acquire(&p->lock);
 
   p->exit_state = status;
@@ -304,27 +294,26 @@ exit(int status)
 
   // Jump into the scheduler, never to return.
   switch2Scheduler();
- Assert(0,"zombie exit");
+  Assert(0, "zombie exit");
 }
 
-int wait(uint64_t addr)
-{
+int wait(uint64_t addr) {
   struct Process *pp;
   int havekids, pid;
   struct Process *p = myProcess();
 
   acquire(&wait_lock);
 
-  for(;;){
+  for (;;) {
     // Scan through table looking for exited children.
     havekids = 0;
-    for(pp = PCB.process; pp < &PCB.process[PCB_NUM]; pp++){
-      if(pp->parent == p){
+    for (pp = PCB.process; pp < &PCB.process[PCB_NUM]; pp++) {
+      if (pp->parent == p) {
         // make sure the child isn't still in exit() or swtch().
         acquire(&pp->lock);
 
         havekids = 1;
-        if(pp->state == ZOMBIE){
+        if (pp->state == ZOMBIE) {
           // Found one.
           pid = pp->processID;
           // if(addr != 0 && copyout(p->pagetable, addr, (char *)&pp->xstate,
@@ -343,32 +332,29 @@ int wait(uint64_t addr)
     }
 
     // No point waiting if we don't have any children.
-    if(!havekids || killed(p)){
+    if (!havekids || killed(p)) {
       release(&wait_lock);
       return -1;
     }
-      release(&p->lock);
+    release(&p->lock);
     // Wait for a child to exit.
-    sleep(p, &wait_lock);  
+    sleep(p, &wait_lock);
   }
 }
-int killed(struct Process *process)
-{
+int killed(struct Process *process) {
   int k;
   acquire(&process->lock);
-  k=process->killed;
+  k = process->killed;
   release(&process->lock);
   return k;
-
 }
-int fork(void)
-{
-  int  pid;
+int fork(void) {
+  int pid;
   struct Process *np;
   struct Process *p = myProcess();
 
   // Allocate process.
-  if((np = allocProcess()) == 0){
+  if ((np = allocProcess()) == 0) {
     return -1;
   }
 

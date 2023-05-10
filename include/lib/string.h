@@ -1,7 +1,8 @@
 #ifndef _STRING_H
 #define _STRING_H
 
-#include "stdint.h"
+#include <stdint.h>
+#include <stddef.h>
 
 void *memcpy(void *dest, const void *src, size_t n);
 void *memmove(void *dest, const void *src, size_t n);

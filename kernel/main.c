@@ -1,7 +1,7 @@
-#include "stdc.h"
+#include "common.h"
 #include "debug.h"
 #include "kernel.h"
-#include "common.h"
+#include "macro.h"
 
 /// 内核栈
 __attribute__ (( aligned(16) )) char boot_stack[PAGE_SIZE * NCPU];

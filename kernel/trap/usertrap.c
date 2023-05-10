@@ -1,5 +1,5 @@
 #include "kernel.h"
-#include "common.h"
+#include "macro.h"
 #include "debug.h"
 #include "syscall/syscall.h"
 /**

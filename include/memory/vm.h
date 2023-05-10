@@ -1,8 +1,8 @@
 #ifndef _VM_H
 #define _VM_H
 
+#include "macro.h"
 #include "common.h"
-#include "stdint.h"
 
 // virtual address
 /// 获取虚拟地址对应级别的虚拟页面号
@@ -58,7 +58,9 @@ word_t va_map_pa(pagetable_t pagetable, addr_t va, addr_t pa, addr_t flags);
 word_t va_unmap_pa(pagetable_t pagetable, addr_t va);
 void kernel_pagetable_init();
 void free_pagetable(pagetable_t pagetable);
+
 void userFstCodeLoad(pagetable_t pagetable, uint8_t* src, uint32_t sz);
 int copyinstr(pagetable_t pagetable, char *dst, uint64_t srcva, uint64_t max);
 int copy_in_str_u2k(pagetable_t pagetable, char *dst, uint64_t srcva, uint64_t max);
+
 #endif

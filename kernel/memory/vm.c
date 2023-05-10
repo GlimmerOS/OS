@@ -1,6 +1,7 @@
 #include "kernel.h"
 #include "debug.h"
 #include "lib/string.h"
+
 /// 内核页表
 static pagetable_t kernel_pagetable;
 /// 内核代码结束位置

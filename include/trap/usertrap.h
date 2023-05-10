@@ -1,7 +1,7 @@
 #ifndef _USERTRAP_H
 #define _USERTRAP_H
 
-#include "stdint.h"
+#include <stdint.h>
 
 void uservec();
 void usertrapret();

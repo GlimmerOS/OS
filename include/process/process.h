@@ -4,7 +4,7 @@
 #include "lock/spinlock.h"
 #include "memory/vm.h"
 #include "memory/vmlayout.h"
-#include "stdint.h"
+#include <stdint.h>
 
 #define PCB_NUM 40
 #define P_FLIE_NUM 15

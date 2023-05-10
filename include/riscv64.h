@@ -1,7 +1,7 @@
 #ifndef _RISCV64_H
 #define _RISCV64_H
 
-#include "stdint.h"
+#include <stdint.h>
 
 /// 读取通用寄存器宏
 #define READ_GRR(name) ({ \

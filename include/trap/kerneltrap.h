@@ -1,7 +1,7 @@
 #ifndef _KERNELTRAP_H
 #define _KERNELTRAP_H
 
-#include "common.h"
+#include "macro.h"
 
 /// supervisor software interrupt
 #define SSI 0x1

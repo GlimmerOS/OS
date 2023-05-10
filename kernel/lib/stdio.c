@@ -1,7 +1,7 @@
 #include "lib/stdio.h"
 #include "stdint.h"
 #include "lib/string.h"
-#include "common.h"
+#include "macro.h"
 #include "lock/spinlock.h"
 
 static char digits[] = "0123456789abcdef";
