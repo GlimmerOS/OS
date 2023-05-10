@@ -8,6 +8,7 @@
 !*.cpp
 !*.cc
 !.gdbinit
+!.clangd
 documents
 build
 !Doxyfile
