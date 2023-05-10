@@ -19,6 +19,7 @@ struct Process {
   enum ProcessState state;
   int exit_state;
   struct Trapframe *trapframe;
+  struct context context;
   struct Process *parent;
   void *chan;
   uint32_t killed;
