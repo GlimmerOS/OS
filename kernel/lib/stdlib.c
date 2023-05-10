@@ -14,3 +14,27 @@ int abs(int x) {
 
   return x;
 }
+
+/**
+ * 返回两个数的最小值
+ *
+ * @param a 第一个数
+ * @param b 第二个数
+ *
+ * @return uint64_t 最小值
+ */
+uint64_t min(uint64_t a, uint64_t b) {
+  return a < b ? a : b;
+}
+
+/**
+ * 返回两个数的最大值
+ *
+ * @param a 第一个数
+ * @param b 第二个数
+ *
+ * @return uint64_t 最大值
+ */
+uint64_t max(uint64_t a, uint64_t b) {
+  return a > b ? a : b;
+}
