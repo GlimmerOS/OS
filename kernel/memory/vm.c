@@ -161,6 +161,77 @@ void free_pagetable(pagetable_t pagetable) {
 
    free_physic_page(pagetable);
 }
+
+/**
+ * 将虚拟地址转换为物理地址
+ *
+ * @param pagetable 页表
+ * @param va 虚拟地址
+ *
+ * @return addr_t 返回物理地址，失败返回-1
+ */
+addr_t va2pa(pagetable_t pagetable, addr_t va) {
+  for (int i = 2; i > 0; --i) {
+    pte_t pte = pagetable[VA_VPN(va, i)];
+
+    if (!GPTE_FLAG(pte, V)) {
+      // PTE无效
+      return -1;
+    } else {
+      // PTE有效
+      pagetable = (pagetable_t)PTE2PA(pte);
+    }
+  }
+
+  pte_t pte = pagetable[VA_VPN(va, 0)];
+
+  if (!GPTE_FLAG(pte, V)) {
+    return -1;
+  }
+
+  return PTE2PA(pte) | VA_PO(va);
+}
+
+/**
+ * 将内核地址空间的内容复制到用户地址空间上
+ *
+ * @param pagetable 用户页表
+ * @param user_va 用户虚拟地址
+ * @param kernel_pa 内核物理地址
+ * @param size 复制内容的大小
+ *
+ * @return bool 成功返回true，失败返回false
+ */
+bool mem_kernel2user(pagetable_t pagetable, addr_t user_va, addr_t kernel_pa, size_t size) {
+  addr_t user_page_start;
+  addr_t user_pa;
+
+  while (size > 0) {
+    user_page_start = PAGE_START(user_va);
+    user_pa = va2pa(pagetable, user_va);
+
+    if (user_pa == -1) {
+      return false;
+    }
+
+    size_t copy_size = PAGE_SIZE - (user_va - user_page_start);
+
+    if (copy_size > size) {
+      copy_size = size;
+    }
+
+    memmove((void *)user_pa, (void *)kernel_pa, copy_size);
+
+    user_va += copy_size;
+    kernel_pa += copy_size;
+    size -= copy_size;
+  }
+
+  return true;
+}
+
+
+
 void userFstCodeLoad(pagetable_t pagetable, uint8_t *src, uint32_t sz)
 {
   char *mem;
