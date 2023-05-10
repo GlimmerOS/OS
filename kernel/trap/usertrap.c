@@ -1,18 +1,22 @@
+#include "debug.h"
 #include "kernel.h"
 #include "macro.h"
-#include "debug.h"
 #include "syscall/syscall.h"
+
+extern char trampoline[];
+
 /**
  * handle user trap
  *
  * @return void no return
  */
 void user_trap_handler() {
-  Assert(GET_BIT(READ_CSR(s, status), SSTATUS_SPP) == 0x0, "Trap not from user!");
-    
+  Assert(GET_BIT(READ_CSR(s, status), SSTATUS_SPP) == 0x0,
+         "Trap not from user!");
+
   WRITE_CSR(s, tvec, (uint64_t)kernelvec);
 
-  struct Process* myproc = myProcess();
+  struct Process *myproc = myProcess();
 
   myproc->trapframe->epc = READ_CSR(s, epc);
 
@@ -26,25 +30,25 @@ void user_trap_handler() {
     }
   } else {
     // not an interrupt
-    if(GET_EXCEPTION(scause)==SSC)
-    {
-        if(killed(myproc))
-        {
-          exit(-1);
-        }
-          myproc->trapframe->epc+=4;
-          intr_on();
-          syscall();
+    if (GET_EXCEPTION(scause) == SSC) {
+      if (killed(myproc)) {
+        exit(-1);
+      }
+      myproc->trapframe->epc += 4;
+      intr_on();
+      syscall();
     }
   }
-      usertrapret();
+  usertrapret();
 }
-void usertrapret()
-{
+
+void usertrapret() {
   struct Process *myproc = myProcess();
 
   intr_off();
-  WRITE_CSR(s, tvec, (uint64_t)uservec);
+
+  addr_t trampoline_uservec = TRAMPOLINE + ((addr_t)uservec - (addr_t)trampoline);
+  WRITE_CSR(s, tvec, trampoline_uservec);
 
   myproc->trapframe->kernelSatp = READ_CSR(s, atp);
   myproc->trapframe->sp = myproc->stack_inKenl + PAGE_SIZE;
@@ -60,5 +64,7 @@ void usertrapret()
   WRITE_CSR(s, epc, myproc->trapframe->epc);
 
   uint64_t satp = SET_SATP((uint64_t)myproc->pagetable);
-  userret(satp);
+
+  addr_t trampoline_userret = TRAMPOLINE + ((addr_t)userret - (addr_t)trampoline);
+  ((void (*)(uint64_t))trampoline_userret)(satp);
 }
