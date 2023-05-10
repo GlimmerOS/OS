@@ -8,23 +8,21 @@ struct PCB PCB;
 struct spinlock wait_lock;
 struct Process *initproc;
 extern char trampoline[];
-extern void swtch(struct Trapframe *old, struct Trapframe *new);
+extern void swtch(struct context *old, struct context *new);
 
 void processSetup(struct Process *process) {
   Log("Process init...");
 
   process->processID = pid++;
+   Assert(process->trapframe = (struct Trapframe *)alloc_physic_page(),
+         "processInitFail:trapFrame disalloc");
   processPgtableAlloc(process);
 
   Assert(process->pagetable, "processInitFail:pagetable disalloc");
 
-  Assert(process->trapframe = (struct Trapframe *)alloc_physic_page(),
-         "processInitFail:trapFrame disalloc");
-
-  memset(process->trapframe, 0, sizeof(struct Trapframe));
-  process->trapframe->ra = (uint64_t)processFirstRun;
-  process->trapframe->sp = process->stack_inKenl + PAGE_SIZE;
-
+  process->context.ra = (uint64_t)processFirstRun;
+  process->context.sp = process->stack_inKenl + PAGE_SIZE;
+  mnm(process->context.sp);
   process->chan = 0;
   process->state = READY;
 }
@@ -42,10 +40,6 @@ void processesInit() {
     process->state = UNUSED;
     process->stack_inKenl = Process_Stack(process - PCB.process);
   }
-  Log("scheduler loaded in cpu ...");
-  mycpu()->trapframe = alloc_physic_page();
-  mycpu()->trapframe->ra = (uint64_t)scheduler;
-  mycpu()->trapframe->kernelSp = Process_Stack(PCB_NUM);
   Log("Finish Processes first init ...");
 }
 
@@ -96,7 +90,7 @@ void userinit(void) {
 
   // prepare for the very first "return" from kernel to user.
   process->trapframe->epc = 0; // user program counter
-  // process->trapframe->sp = PAGE_SIZE;  // user stack pointer
+  process->trapframe->sp = PAGE_SIZE;  // user stack pointer
   memcpy(process->name, "initcode", sizeof(process->name));
   // p->cwd = namei("/");
   process->state = READY;
@@ -117,7 +111,7 @@ void scheduler() {
       if (process->state == READY) {
         process->state = RUNNING;
         cpu->process = process;
-        swtch(cpu->trapframe, process->trapframe);
+        swtch(&cpu->context, &process->context);
         cpu->process = 0;
       }
       release(&process->lock);
@@ -138,7 +132,7 @@ void switch2Scheduler() {
   }
 
   intena = mycpu()->intena;
-  swtch(process->trapframe, mycpu()->trapframe);
+  swtch(&process->context, &mycpu()->context);
   mycpu()->intena = intena;
 }
 

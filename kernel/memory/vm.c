@@ -19,6 +19,10 @@ extern char trampoline[];
 static pagetable_t alloc_pagetable() {
   return alloc_physic_page();
 }
+void mnm(addr_t va)
+{
+    Log("the pa is :%p",va2pa(kernel_pagetable,va));
+}
 
 /**
  * 建立虚拟地址到物理地址的映射关系
@@ -119,10 +123,12 @@ void kernel_pagetable_init() {
   for (int i = 0; i < PCB_NUM; ++i) {
     uint64_t pa = (uint64_t)alloc_physic_page();
     Assert(pa != 0, "alloc process stack page failed!");
-
-    uint64_t va = Process_Stack(i);
     
+    uint64_t va = Process_Stack(i);
+
     int ret = va_map_pa(kernel_pagetable, va, pa, MPTE_FLAG(R) | MPTE_FLAG(W));
+    // uint64_t paa = va2pa(kernel_pagetable, (uint64_t)Process_Stack(i));
+    // Log("pa get from va: %p , va is:%p", paa,va);
     Assert(ret != 0, "map process stack page failed!");
   }
 
