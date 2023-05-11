@@ -22,7 +22,6 @@ void processSetup(struct Process *process) {
 
   process->context.ra = (uint64_t)processFirstRun;
   process->context.sp = process->stack_inKenl + PAGE_SIZE;
-  mnm(process->context.sp);
   process->chan = 0;
   process->state = READY;
 }
@@ -142,20 +141,21 @@ void processPgtableAlloc(struct Process *process) {
   if (process->pagetable == 0)
     Assert(0, "process pgtable Alloc fail");
 
-  if (va_map_pa(process->pagetable, TRAMPOLINE, (uint64_t)trampoline,
-                MPTE_FLAG(R) | MPTE_FLAG(W)) < 0) {
+  if (!va_map_pa(process->pagetable, TRAMPOLINE, (uint64_t)trampoline,
+                MPTE_FLAG(R) | MPTE_FLAG(X))) {
     va_unmap_pa(process->pagetable, TRAMPOLINE);
     free_physic_page(process->pagetable);
     Assert(0, "TRAMPOLINE map failed");
   }
 
-  if (va_map_pa(process->pagetable, TRAPFRAME, (uint64_t)(process->trapframe),
-                MPTE_FLAG(R) | MPTE_FLAG(W)) < 0) {
+  if (!va_map_pa(process->pagetable, TRAPFRAME, (uint64_t)(process->trapframe),
+                MPTE_FLAG(R) | MPTE_FLAG(W))) {
     va_unmap_pa(process->pagetable, TRAMPOLINE);
     va_unmap_pa(process->pagetable, TRAPFRAME);
     free_physic_page(process->pagetable);
     Assert(0, "TRAPFRAME map failed");
   }
+  vmprint(process->pagetable);
 }
 static void freeProcess(struct Process *process) {
   if (process->trapframe)

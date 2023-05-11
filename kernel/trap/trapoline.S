@@ -1,6 +1,6 @@
 .altmacro
 
-.equ TRAPFRAME, 0x8000000000 - 0x1000
+.equ TRAPFRAME, 0x4000000000 - 0x2000
 .equ XLEN, 8
 
 .macro SAVE_REG reg, offset
@@ -49,7 +49,7 @@ uservec:
 
 	# save the user a0 in p->trapframe->a0
   csrr t0, sscratch
-  sd t0, 5 * XLEN(a0)
+  sd t0, 10 * XLEN(a0)
 
   # initialize kernel stack pointer, from p->trapframe->kernel_sp
   ld sp, 33 * XLEN(a0)

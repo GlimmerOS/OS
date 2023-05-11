@@ -60,9 +60,8 @@ void kernel_pagetable_init();
 void free_pagetable(pagetable_t pagetable);
 addr_t va2pa(pagetable_t pagetable, addr_t va);
 bool mem_kernel2user(pagetable_t pagetable, addr_t user_Va, addr_t kernel_pa, size_t size);
-void mnm(addr_t va);
 void userFstCodeLoad(pagetable_t pagetable, uint8_t* src, uint32_t sz);
 int copyinstr(pagetable_t pagetable, char *dst, uint64_t srcva, uint64_t max);
 int copy_in_str_u2k(pagetable_t pagetable, char *dst, uint64_t srcva, uint64_t max);
-
+void vmprint(pagetable_t pagetable);
 #endif

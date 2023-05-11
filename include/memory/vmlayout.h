@@ -5,7 +5,7 @@
 #include "macro.h"
 
 /// 虚拟地址的最大值
-#define  VA_MAX SET_BIT(0, 39)
+#define  VA_MAX SET_BIT(0, 38)
 
 /// trampoline的虚拟地址
 #define TRAMPOLINE (VA_MAX - PAGE_SIZE)

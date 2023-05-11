@@ -19,10 +19,6 @@ extern char trampoline[];
 static pagetable_t alloc_pagetable() {
   return alloc_physic_page();
 }
-void mnm(addr_t va)
-{
-    Log("the pa is :%p",va2pa(kernel_pagetable,va));
-}
 
 /**
  * 建立虚拟地址到物理地址的映射关系
@@ -290,4 +286,30 @@ copy_in_str_u2k(pagetable_t pagetable, char *dst, uint64_t srcva, uint64_t max)
   } else {
     return -1;
   }
+}
+void
+vmprint(pagetable_t pagetable)
+{
+  static int level=-1;
+  pte_t pte;
+  int n,cnt;
+  level++;
+    printf("page table %p\n",pagetable);
+    for(n=0;n<512;n++)
+    {
+      pte=pagetable[n];
+      if(pte&MPTE_FLAG(V))
+      {
+            for(cnt=level;cnt>=0;cnt--)
+            {
+              printf(" ..");
+            }
+        printf("%d: pte %p pa %p\n",n,pte,PTE2PA(pte));
+        if(level<=1)
+        {
+        vmprint((pagetable_t)PTE2PA(pte));
+        }
+      }
+    }
+    level--;
 }
