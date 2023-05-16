@@ -51,7 +51,7 @@ void usertrapret() {
   WRITE_CSR(s, tvec, trampoline_uservec);
 
   myproc->trapframe->kernelSatp = READ_CSR(s, atp);
-  myproc->trapframe->sp = myproc->stack_inKenl + PAGE_SIZE;
+  myproc->trapframe->kernelSp = myproc->stack_inKenl + PAGE_SIZE;
   myproc->trapframe->kernelHartId = READ_GRR(tp);
 
   uint64_t sstatus = READ_CSR(s, status);
