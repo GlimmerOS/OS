@@ -60,6 +60,8 @@ uservec:
   # fetch the kernel page table address, from p->trapframe->kernel_satp.
   ld t1, 32 * XLEN(a0)
 
+  ld t0, 36 * XLEN(a0)
+
   # wait for any previous memory operations to complete, so that
   # they use the user page table.
   sfence.vma zero, zero
@@ -71,7 +73,7 @@ uservec:
   sfence.vma zero, zero
 
   # jump to usertrap(), which does not return
-  j user_trap_handler
+  jr t0
 
 .globl userret
 userret:

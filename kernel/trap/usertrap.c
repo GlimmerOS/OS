@@ -53,6 +53,7 @@ void usertrapret() {
   myproc->trapframe->kernelSatp = READ_CSR(s, atp);
   myproc->trapframe->kernelSp = myproc->stack_inKenl + PAGE_SIZE;
   myproc->trapframe->kernelHartId = READ_GRR(tp);
+  myproc->trapframe->kernel_usertrap = (uint64_t)user_trap_handler;
 
   uint64_t sstatus = READ_CSR(s, status);
 

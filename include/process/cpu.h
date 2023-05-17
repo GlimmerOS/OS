@@ -43,6 +43,7 @@ struct Trapframe {
   uint64_t kernelSp;     // 33
   uint64_t epc;          // 34
   uint64_t kernelHartId; // 35
+  uint64_t kernel_usertrap; //36
 };
 struct context {
   uint64_t ra;
