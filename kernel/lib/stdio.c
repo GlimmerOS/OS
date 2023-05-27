@@ -17,7 +17,7 @@ static char* buffer = 0; // out buffer
 static int ret = 0; // the return value of print function
 static size_t out_size = -1; // the number of characters been out
 
-static struct spinlock print_lock;
+static struct spinlock print_lock = {0};
 
 /**
  * 输出一个字符到指定目标上
@@ -223,14 +223,14 @@ int printf(const char *format, ...) {
   
   va_list ap;
   va_start(ap, format);
-  ret = vprintf(format, ap);
+  int retval = vprintf(format, ap);
   va_end(ap) ;
   
   out_size = -1;
 
   release(&print_lock);
 
-  return ret;
+  return retval;
 }
 
 /**
@@ -248,14 +248,14 @@ int vsprintf(char *out, const char *format, va_list ap) {
   out_target = 1;
   buffer = out;
 
-  vprintf(format, ap);
+  int retval = vprintf(format, ap);
 
   *buffer = '\0';
   out_size = -1;
 
   release(&print_lock);
 
-  return ret;
+  return retval;
 }
 
 /**
@@ -274,15 +274,15 @@ int sprintf(char *out, const char *format, ...) {
 
   va_list ap;
   va_start(ap, format);
-  ret = vprintf(format, ap);
+  int retval = vprintf(format, ap);
   va_end(ap) ;
 
   *buffer = '\0';
   out_size = -1;
-  
-  release(&print_lock);
 
-  return ret;
+  release(&print_lock);
+  
+  return retval;
 }
 
 /**
@@ -295,11 +295,11 @@ int sprintf(char *out, const char *format, ...) {
  * @return int 返回成功打印的参数个数
  */
 int snprintf(char *out, size_t n, const char *format, ...) {
+  acquire(&print_lock);
+
   if (n == 0) {
     return 0;
   }
-
-  acquire(&print_lock);
 
   out_target = 1;
   buffer = out;
@@ -307,7 +307,7 @@ int snprintf(char *out, size_t n, const char *format, ...) {
 
   va_list ap;
   va_start(ap, format);
-  ret = vprintf(format, ap);
+  int retval = vprintf(format, ap);
   va_end(ap) ;
 
   *buffer = '\0';
@@ -315,7 +315,7 @@ int snprintf(char *out, size_t n, const char *format, ...) {
 
   release(&print_lock);
 
-  return ret;
+  return retval;
 }
 
 /**
@@ -329,24 +329,24 @@ int snprintf(char *out, size_t n, const char *format, ...) {
  * @return int 返回成功打印的参数个数
  */
 int vsnprintf(char *out, size_t n, const char *format, va_list ap) {
+  acquire(&print_lock);
+
   if (n == 0) {
     return 0;
   }
-
-  acquire(&print_lock);
 
   out_target = 1;
   buffer = out;
   out_size = n - 1;
 
-  ret = vprintf(format, ap);
+  int retval = vprintf(format, ap);
 
   *buffer = '\0';
   out_size = -1;
 
   release(&print_lock);
 
-  return ret;
+  return retval;
 }
 
 /**

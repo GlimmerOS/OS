@@ -30,14 +30,16 @@ void user_trap_handler() {
     }
   } else {
     // not an interrupt
-    if (GET_EXCEPTION(scause) == SSC) {
+    /* if (GET_EXCEPTION(scause) == SSC) {
       if (killed(myproc)) {
         exit(-1);
       }
       myproc->trapframe->epc += 4;
       intr_on();
       syscall();
-    }
+    } */
+
+    Assert(0, "trap need to inplement");
   }
   usertrapret();
 }
