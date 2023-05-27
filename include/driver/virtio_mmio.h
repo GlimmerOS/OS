@@ -23,7 +23,4 @@
 #define VIRTIO_MMIO_DEVICE_DESC_LOW	0x0a0 // physical address for used ring, write-only
 #define VIRTIO_MMIO_DEVICE_DESC_HIGH	0x0a4
 
-/// the address of virtio mmio register r.
-#define VIRTIO_MMIO_REG(r) ((volatile uint32 *)(VIRTIO0 + (r)))
-
 #endif

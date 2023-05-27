@@ -46,6 +46,8 @@ void main() {
     processesInit();
     kernel_trap_init();
     userinit();
+
+    fat32_disk_init();
   } else {
     while (1) {};
   }
