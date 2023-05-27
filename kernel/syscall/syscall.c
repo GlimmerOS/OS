@@ -28,6 +28,8 @@ static uint64_t argGet(int n) {
   default:
     Assert(0, "argeGet:no suitable num");
   }
+
+  return 0;
 }
 
 int getStrFmAddr(uint64_t addr, char *buf, int max) {
