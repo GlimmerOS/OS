@@ -33,11 +33,15 @@ QEMU = qemu-system-riscv64
 MACHINE = virt
 BIOS = default
 MEMORYSIZE = 128M
+DRIVE = file=$(IMG),if=none,format=raw,id=x0
+DEVICE = virtio-blk-device,drive=x0,bus=virtio-mmio-bus.0
 
 QEMUFLAGS = -machine $(MACHINE) \
 						-bios $(BIOS) \
 						-m $(MEMORYSIZE) \
-						-nographic
+						-nographic \
+						-drive $(DRIVE) \
+						-device $(DEVICE)
 
 # C compile options
 CFLAGS = -Wall -Werror -ggdb3 \
@@ -90,6 +94,13 @@ gdb: $(KERNELBIN)
 	@echo "**********Start riscv64-unknown-linux-gnu-gdb on another window********************"
 	@$(QEMU) $(QEMUFLAGS) -kernel $(KERNELBIN) $(QEMUGDBFLAGS) 
 
+IMG = $(WORKDIR)/fat32.img
+
+# make fat32 image
+img:
+	dd if=/dev/zero of=$(IMG) bs=1M count=128
+	mkfs.fat -F 32 $(IMG)
+
 docs: clean
 	./docs.sh
 
@@ -97,4 +108,4 @@ docs: clean
 clean:
 	rm -rf $(BUILDDIR)
 
-.PHONY: clean run gdb docs
+.PHONY: clean run gdb docs img
