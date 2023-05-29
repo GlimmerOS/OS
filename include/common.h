@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-// #include <inttypes.h>
+#include <inttypes.h>
 
 #include "lib/stdio.h"
 #include "lib/stdlib.h"
