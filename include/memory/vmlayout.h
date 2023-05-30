@@ -13,4 +13,7 @@
 /// trapframe的虚拟地址
 #define TRAPFRAME (TRAMPOLINE - PAGE_SIZE)
 
+/// virtio memory mapping
+#define VIRTIO0 0x10001000
+
 #endif

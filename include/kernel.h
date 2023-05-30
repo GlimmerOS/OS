@@ -10,5 +10,7 @@
 #include "process/cpu.h"
 #include "process/process.h"
 #include "riscv64.h"
+#include "driver/virtio_mmio.h"
+#include "device/fat32_disk.h"
 
 #endif
