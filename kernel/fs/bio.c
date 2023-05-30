@@ -64,7 +64,9 @@ static struct buf* bget(int dev, uint32_t blockno) {
             return b;
         }
     }
-    Assert(0,"bget: no buffers");
+    Assert(0, "bget: no buffers");
+
+    return NULL;
 }
 
 // struct buf* mountBlockRead(FileSystem* fs, uint64_t blockNum) {
